@@ -1,4 +1,3 @@
-# TODO: if i restrict the camera position, maybe don't need the camera view box
 class_name Main extends Node3D
 
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 20.0
@@ -35,8 +34,6 @@ var player_transparent := preload("res://player_transparent.tres")
 @onready var tooltip_label := $UI/TooltipLabel as Label
 @onready var warning_label := $UI/WarningLabel as Control
 @onready var camera := $Camera3D as Camera3D
-@onready var camera_view_box := $Camera3D/Area3D as Area3D
-@onready var enemy_spawn_point := $EnemySpawnPoint as Area3D
 @onready var fog_of_war := $FogOfWar as Node3D
 @onready var launchpad_visibility_ring := $FogOfWar/VisibilityRing as Node3D
 var mouse_position_3d := Vector3.ZERO
@@ -46,6 +43,7 @@ var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
 var energy := 30
 var camera_offset := Vector3.ZERO
+var enemy_spawn_position := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -212,27 +210,27 @@ func get_time() -> float:
 
 
 func start_enemy_spawn_loop() -> void:
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(3.0).timeout
 	var enemies_per_wave := 1.0
 	while true:
-		enemy_spawn_point.position = get_random_enemy_cluster_position()
+		enemy_spawn_position = random_enemy_spawn_position()
 
 		warning_label.visible = true
-		get_tree().create_timer(5.0).timeout.connect(func() -> void:
+		get_tree().create_timer(10.0).timeout.connect(func() -> void:
 			warning_label.visible = false
 		)
 
-		for i in floori(enemies_per_wave):
+		for i in ceili(enemies_per_wave):
 			var enemy := enemy_scene.instantiate() as Node3D
 			enemy.position = Vector3(
-				enemy_spawn_point.position.x + randf_range(-3.0, 3.0),
+				enemy_spawn_position.x + randf_range(-3.0, 3.0),
 				0.0,
-				enemy_spawn_point.position.z + randf_range(-3.0, 3.0),
+				enemy_spawn_position.z + randf_range(-3.0, 3.0),
 			)
 			enemies.add_child(enemy)
-		enemies_per_wave *= 2
+		enemies_per_wave *= 1.5
 
-		await get_tree().create_timer(10.0).timeout
+		await get_tree().create_timer(20.0).timeout
 
 
 func start_energy_loop() -> void:
@@ -330,7 +328,7 @@ func process_camera(delta: float) -> void:
 		camera.position -= up_direction * delta * CAMERA_SPEED
 
 
-func get_random_enemy_cluster_position() -> Vector3:
+func random_enemy_spawn_position() -> Vector3:
 	var min_x := 0.0
 	var max_x := 0.0
 	var min_z := 0.0
@@ -367,7 +365,7 @@ func process_warning_label() -> void:
 	warning_label.modulate.a = fmod(get_time(), 1.0)
 
 	var camera_focal_point := camera.position - camera_offset
-	var dir := camera_focal_point.direction_to(enemy_spawn_point.position)
+	var dir := camera_focal_point.direction_to(enemy_spawn_position)
 	var viewport_center := get_viewport().get_visible_rect().get_center()
 	warning_label.position = viewport_center + 10000.0 * Vector2(dir.x, dir.z)
 	var viewport_size := get_viewport().get_visible_rect().size
@@ -379,9 +377,6 @@ func process_warning_label() -> void:
 		warning_label.position.y = 0.0
 	if warning_label.position.y > viewport_size.y:
 		warning_label.position.y = viewport_size.y - warning_label.size.y
-
-	if enemy_spawn_point.get_overlapping_areas().has(camera_view_box):
-		warning_label.visible = false
 
 
 func erase_building(grid_coord: Vector2i) -> void:
