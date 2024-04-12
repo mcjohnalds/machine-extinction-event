@@ -1,6 +1,8 @@
 class_name Main extends Node3D
 
+const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 15.0
 const CAMERA_SPEED = 7.0
+const TURRET_RADIUS = 7.0
 enum BuildingType {TURRET, WALL, MINE, INVALID}
 const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 10,
@@ -41,8 +43,8 @@ func _ready() -> void:
 	make_ghost_transparent()
 	start_enemy_spawn_loop()
 	start_energy_loop()
-	for row in range(-100, 100):
-		for col in range(-100, 100):
+	for row in range(-1000, 1000):
+		for col in range(-1000, 1000):
 			if randf() < 0.03 and (row != 0 or col != 0):
 				var uranium := uranium_scene.instantiate() as Node3D
 				uranium.position.x = row
@@ -147,7 +149,13 @@ func _process(delta: float) -> void:
 						< turret.position.distance_to(nearest_enemy.position)
 				):
 					nearest_enemy = enemy
-			if get_time() - turret.last_fired_at > 2.0:
+			if (
+				get_time() - turret.last_fired_at > 2.0
+				and (
+					nearest_enemy.position.distance_to(turret.position)
+					< TURRET_RADIUS
+				)
+			):
 				turret.last_fired_at = get_time()
 				add_tracer(turret, nearest_enemy)
 				nearest_enemy.queue_free()
@@ -188,16 +196,48 @@ func make_ghost_transparent() -> void:
 
 
 func start_enemy_spawn_loop() -> void:
-	var t := 2.0
+	var enemies_per_wave := 1.0
 	while true:
-		var enemy := enemy_scene.instantiate() as Node3D
-		enemy.position = Vector3(10.0, 0.0, 10.0)
-		enemy.position.x += randf_range(-3.0, 3.0)
-		enemy.position.z += randf_range(-3.0, 3.0)
-		enemies.add_child(enemy)
-		await get_tree().create_timer(t).timeout
-		t -= 0.03
-		t = maxf(t, 0.1)
+		var min_x := 0.0
+		var max_x := 0.0
+		var min_z := 0.0
+		var max_z := 0.0
+		for building: Node3D in buildings.get_children():
+			min_x = minf(min_x, building.position.x)
+			max_x = maxf(min_x, building.position.x)
+			min_z = minf(min_z, building.position.z)
+			max_z = maxf(min_z, building.position.z)
+		var cluster_position := Vector3.ZERO
+		match randi_range(0, 2):
+			0: # Top
+				cluster_position = Vector3(
+					randf_range(min_x, max_x),
+					0.0,
+					min_z - ENEMY_SPAWN_DISTANCE_FROM_PLAYER
+				)
+			1: # Left
+				cluster_position = Vector3(
+					min_x - ENEMY_SPAWN_DISTANCE_FROM_PLAYER,
+					0.0,
+					randf_range(min_z, max_z)
+				)
+			2: # Right
+				cluster_position = Vector3(
+					max_x + ENEMY_SPAWN_DISTANCE_FROM_PLAYER,
+					0.0,
+					randf_range(min_z, max_z)
+				)
+
+		for i in floori(enemies_per_wave):
+			var enemy := enemy_scene.instantiate() as Node3D
+			enemy.position = Vector3(
+				cluster_position.x + randf_range(-3.0, 3.0),
+				0.0,
+				cluster_position.z + randf_range(-3.0, 3.0),
+			)
+			enemies.add_child(enemy)
+		enemies_per_wave *= 2
+		await get_tree().create_timer(10.0).timeout
 
 
 func start_energy_loop() -> void:
