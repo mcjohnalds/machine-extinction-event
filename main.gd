@@ -24,6 +24,10 @@ var mine_scene := preload("res://mine.tscn")
 var player_transparent := preload("res://player_transparent.tres")
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
+@onready var ghost_turret := $Ghost/Turret as Node3D
+@onready var ghost_turret_ring := $Ghost/Turret/Ring as Node3D
+@onready var ghost_wall := $Ghost/Wall as Node3D
+@onready var ghost_mine := $Ghost/Mine as Node3D
 @onready var launchpad := $Buildings/Launchpad as Node3D
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
@@ -48,8 +52,13 @@ func _ready() -> void:
 	camera_offset = camera.position
 	grid_to_building[Vector2i(0, 0)] = launchpad
 	ground.input_event.connect(_on_ground_input_event)
-	ghost.add_child(turret_scene.instantiate())
-	make_ghost_transparent()
+
+	ghost_turret_ring.scale.x = TURRET_RADIUS * 2.0
+	ghost_turret_ring.scale.z = TURRET_RADIUS * 2.0
+	var ghost_meshes := ghost.find_children("*", "MeshInstance3D", true, false)
+	for mesh: MeshInstance3D in ghost_meshes:
+		mesh.material_override = player_transparent
+
 	start_enemy_spawn_loop()
 	start_energy_loop()
 	for row in range(-1000, 1000):
@@ -77,19 +86,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			match e.keycode:
 				KEY_1:
 					building_type = BuildingType.TURRET
-					ghost.get_child(0).queue_free()
-					ghost.add_child(turret_scene.instantiate())
+					hide_ghost_children()
+					ghost_turret.visible = true
 				KEY_2:
 					building_type = BuildingType.WALL
-					ghost.get_child(0).queue_free()
-					ghost.add_child(wall_scene.instantiate())
+					hide_ghost_children()
+					ghost_wall.visible = true
 				KEY_3:
 					building_type = BuildingType.MINE
-					ghost.get_child(0).queue_free()
-					ghost.add_child(mine_scene.instantiate())
+					hide_ghost_children()
+					ghost_mine.visible = true
 				KEY_ESCAPE:
 					get_tree().quit()
-			make_ghost_transparent()
 
 
 func _on_ground_input_event(
@@ -203,12 +211,6 @@ func get_time() -> float:
 	return Time.get_ticks_msec() / 1000.0
 
 
-func make_ghost_transparent() -> void:
-	var meshes := ghost.find_children("*", "MeshInstance3D", true, false)
-	for mesh: MeshInstance3D in meshes:
-		mesh.material_override = player_transparent
-
-
 func start_enemy_spawn_loop() -> void:
 	await get_tree().create_timer(2.0).timeout
 	var enemies_per_wave := 1.0
@@ -260,7 +262,11 @@ func process_tooltip() -> void:
 
 
 func process_ghost() -> void:
-	ghost.position = Vector3(roundi(mouse_position_3d.x), 0.0, roundi(mouse_position_3d.z))
+	ghost.position = Vector3(
+		roundi(mouse_position_3d.x),
+		0.0,
+		roundi(mouse_position_3d.z)
+	)
 	ghost.visible = can_place_building()
 
 
@@ -383,3 +389,8 @@ func erase_building(grid_coord: Vector2i) -> void:
 	building.queue_free()
 	grid_to_building.erase(grid_coord)
 	grid_to_visibility_ring.erase(grid_coord)
+
+
+func hide_ghost_children() -> void:
+	for child: Node3D in ghost.get_children():
+		child.visible = false
