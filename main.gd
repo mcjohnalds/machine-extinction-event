@@ -1,8 +1,9 @@
+# TODO: if i restrict the camera position, maybe don't need the camera view box
 class_name Main extends Node3D
 
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 20.0
 const CAMERA_SPEED := 7.0
-const TURRET_RADIUS := 7.0
+const TURRET_RADIUS := 6.0
 enum BuildingType {TURRET, WALL, MINE, INVALID}
 const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 10,
@@ -32,10 +33,13 @@ var player_transparent := preload("res://player_transparent.tres")
 @onready var camera := $Camera3D as Camera3D
 @onready var camera_view_box := $Camera3D/Area3D as Area3D
 @onready var enemy_spawn_point := $EnemySpawnPoint as Area3D
+@onready var fog_of_war := $FogOfWar as Node3D
+@onready var launchpad_visibility_ring := $FogOfWar/VisibilityRing as Node3D
 var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
 var grid_to_building := {} # Dictionary[Vector2i, Node3D]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
+var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
 var energy := 30
 var camera_offset := Vector3.ZERO
 
@@ -118,11 +122,16 @@ func _on_ground_input_event(
 				)
 				grid_to_building[grid_coord] = building
 				buildings.add_child(building)
+
+				var visibility_ring := (
+					launchpad_visibility_ring.duplicate() as Node3D
+				)
+				visibility_ring.position = building.position
+				fog_of_war.add_child(visibility_ring)
+				grid_to_visibility_ring[grid_coord] = visibility_ring
 		elif can_sell_building():
 				set_energy(energy + get_sell_value())
-				var building: Node3D = grid_to_building[grid_coord]
-				building.queue_free()
-				grid_to_building.erase(grid_coord)
+				erase_building(grid_coord)
 
 
 func _process(delta: float) -> void:
@@ -138,9 +147,8 @@ func _process(delta: float) -> void:
 		enemy.look_at(nearest_building.position, Vector3.UP, true)
 		enemy.position += enemy.basis.z * delta * 1.0
 		if enemy.position.distance_to(nearest_building.position) < 1.0:
-			nearest_building.queue_free()
 			enemy.queue_free()
-			grid_to_building.erase(grid_coord)
+			erase_building(grid_coord)
 	for grid_coord: Vector2i in grid_to_building:
 		var building: Node3D = grid_to_building[grid_coord]
 		if building is Turret:
@@ -368,3 +376,10 @@ func process_warning_label() -> void:
 
 	if enemy_spawn_point.get_overlapping_areas().has(camera_view_box):
 		warning_label.visible = false
+
+
+func erase_building(grid_coord: Vector2i) -> void:
+	var building: Node3D = grid_to_building[grid_coord]
+	building.queue_free()
+	grid_to_building.erase(grid_coord)
+	grid_to_visibility_ring.erase(grid_coord)

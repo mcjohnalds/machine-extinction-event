@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=14 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_jl7ro"]
 [ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="2_bgt2e"]
@@ -34,6 +34,10 @@ material = ExtResource("2_bgt2e")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wsshn"]
 size = Vector3(15, 15, 15)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3omxf"]
+shading_mode = 0
+albedo_color = Color(0.172549, 0.172549, 0.172549, 1)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_jl7ro")
@@ -116,3 +120,14 @@ vertical_alignment = 1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="EnemySpawnPoint"]
 shape = SubResource("BoxShape3D_wsshn")
+
+[node name="FogOfWar" type="CSGBox3D" parent="."]
+size = Vector3(2000, 2, 2000)
+material = SubResource("StandardMaterial3D_3omxf")
+
+[node name="VisibilityRing" type="CSGCylinder3D" parent="FogOfWar"]
+operation = 2
+radius = 7.0
+height = 3.0
+sides = 32
+smooth_faces = false
