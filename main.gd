@@ -1,8 +1,8 @@
 class_name Main extends Node3D
 
-const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 15.0
-const CAMERA_SPEED = 7.0
-const TURRET_RADIUS = 7.0
+const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 20.0
+const CAMERA_SPEED := 7.0
+const TURRET_RADIUS := 7.0
 enum BuildingType {TURRET, WALL, MINE, INVALID}
 const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 10,
@@ -26,17 +26,22 @@ var player_transparent := preload("res://player_transparent.tres")
 @onready var launchpad := $Buildings/Launchpad as Node3D
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
-@onready var energy_label := %EnergyLabel as Label
-@onready var tooltip_label := %TooltipLabel as Label
+@onready var energy_label := $UI/EnergyLabel as Label
+@onready var tooltip_label := $UI/TooltipLabel as Label
+@onready var warning_label := $UI/WarningLabel as Control
 @onready var camera := $Camera3D as Camera3D
+@onready var camera_view_box := $Camera3D/Area3D as Area3D
+@onready var enemy_spawn_point := $EnemySpawnPoint as Area3D
 var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
 var grid_to_building := {} # Dictionary[Vector2i, Node3D]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var energy := 30
+var camera_offset := Vector3.ZERO
 
 
 func _ready() -> void:
+	camera_offset = camera.position
 	grid_to_building[Vector2i(0, 0)] = launchpad
 	ground.input_event.connect(_on_ground_input_event)
 	ghost.add_child(turret_scene.instantiate())
@@ -121,9 +126,10 @@ func _on_ground_input_event(
 
 
 func _process(delta: float) -> void:
-	update_tooltip()
-	update_ghost()
-	update_camera(delta)
+	process_tooltip()
+	process_ghost()
+	process_camera(delta)
+	process_warning_label()
 	for enemy: Node3D in enemies.get_children():
 		if grid_to_building.is_empty():
 			continue
@@ -196,47 +202,26 @@ func make_ghost_transparent() -> void:
 
 
 func start_enemy_spawn_loop() -> void:
+	await get_tree().create_timer(2.0).timeout
 	var enemies_per_wave := 1.0
 	while true:
-		var min_x := 0.0
-		var max_x := 0.0
-		var min_z := 0.0
-		var max_z := 0.0
-		for building: Node3D in buildings.get_children():
-			min_x = minf(min_x, building.position.x)
-			max_x = maxf(min_x, building.position.x)
-			min_z = minf(min_z, building.position.z)
-			max_z = maxf(min_z, building.position.z)
-		var cluster_position := Vector3.ZERO
-		match randi_range(0, 2):
-			0: # Top
-				cluster_position = Vector3(
-					randf_range(min_x, max_x),
-					0.0,
-					min_z - ENEMY_SPAWN_DISTANCE_FROM_PLAYER
-				)
-			1: # Left
-				cluster_position = Vector3(
-					min_x - ENEMY_SPAWN_DISTANCE_FROM_PLAYER,
-					0.0,
-					randf_range(min_z, max_z)
-				)
-			2: # Right
-				cluster_position = Vector3(
-					max_x + ENEMY_SPAWN_DISTANCE_FROM_PLAYER,
-					0.0,
-					randf_range(min_z, max_z)
-				)
+		enemy_spawn_point.position = get_random_enemy_cluster_position()
+
+		warning_label.visible = true
+		get_tree().create_timer(5.0).timeout.connect(func() -> void:
+			warning_label.visible = false
+		)
 
 		for i in floori(enemies_per_wave):
 			var enemy := enemy_scene.instantiate() as Node3D
 			enemy.position = Vector3(
-				cluster_position.x + randf_range(-3.0, 3.0),
+				enemy_spawn_point.position.x + randf_range(-3.0, 3.0),
 				0.0,
-				cluster_position.z + randf_range(-3.0, 3.0),
+				enemy_spawn_point.position.z + randf_range(-3.0, 3.0),
 			)
 			enemies.add_child(enemy)
 		enemies_per_wave *= 2
+
 		await get_tree().create_timer(10.0).timeout
 
 
@@ -254,7 +239,7 @@ func set_energy(new_energy: int) -> void:
 	energy_label.text = "Energy: %s" % energy
 
 
-func update_tooltip() -> void:
+func process_tooltip() -> void:
 	if can_place_building():
 		var building_cost: int = BUILDING_ENERGY_COST[building_type]
 		tooltip_label.text = "Build for -%s energy" % building_cost
@@ -266,7 +251,7 @@ func update_tooltip() -> void:
 		tooltip_label.visible = false
 
 
-func update_ghost() -> void:
+func process_ghost() -> void:
 	ghost.position = Vector3(roundi(mouse_position_3d.x), 0.0, roundi(mouse_position_3d.z))
 	ghost.visible = can_place_building()
 
@@ -315,7 +300,7 @@ func get_sell_value() -> int:
 	return BUILDING_ENERGY_SELL_VALUE[building_under_mouse_type]
 
 
-func update_camera(delta: float) -> void:
+func process_camera(delta: float) -> void:
 	if Input.is_key_pressed(KEY_A):
 		camera.position -= camera.basis.x * delta * CAMERA_SPEED
 	if Input.is_key_pressed(KEY_D):
@@ -329,3 +314,57 @@ func update_camera(delta: float) -> void:
 		camera.position += up_direction * delta * CAMERA_SPEED
 	if Input.is_key_pressed(KEY_S):
 		camera.position -= up_direction * delta * CAMERA_SPEED
+
+
+func get_random_enemy_cluster_position() -> Vector3:
+	var min_x := 0.0
+	var max_x := 0.0
+	var min_z := 0.0
+	var max_z := 0.0
+	for building: Node3D in buildings.get_children():
+		min_x = minf(min_x, building.position.x)
+		max_x = maxf(min_x, building.position.x)
+		min_z = minf(min_z, building.position.z)
+		max_z = maxf(min_z, building.position.z)
+	match randi_range(0, 2):
+		0: # Top
+			return Vector3(
+				randf_range(min_x, max_x),
+				0.0,
+				min_z - ENEMY_SPAWN_DISTANCE_FROM_PLAYER
+			)
+		1: # Left
+			return Vector3(
+				min_x - ENEMY_SPAWN_DISTANCE_FROM_PLAYER,
+				0.0,
+				randf_range(min_z, max_z)
+			)
+		2: # Right
+			return Vector3(
+				max_x + ENEMY_SPAWN_DISTANCE_FROM_PLAYER,
+				0.0,
+				randf_range(min_z, max_z)
+			)
+	push_error("Impossible state")
+	return Vector3.ZERO
+
+
+func process_warning_label() -> void:
+	warning_label.modulate.a = fmod(get_time(), 1.0)
+
+	var camera_focal_point := camera.position - camera_offset
+	var dir := camera_focal_point.direction_to(enemy_spawn_point.position)
+	var viewport_center := get_viewport().get_visible_rect().get_center()
+	warning_label.position = viewport_center + 10000.0 * Vector2(dir.x, dir.z)
+	var viewport_size := get_viewport().get_visible_rect().size
+	if warning_label.position.x < 0.0:
+		warning_label.position.x = 0.0
+	if warning_label.position.x + warning_label.size.x > viewport_size.x:
+		warning_label.position.x = viewport_size.x - warning_label.size.x
+	if warning_label.position.y < 0.0:
+		warning_label.position.y = 0.0
+	if warning_label.position.y > viewport_size.y:
+		warning_label.position.y = viewport_size.y - warning_label.size.y
+
+	if enemy_spawn_point.get_overlapping_areas().has(camera_view_box):
+		warning_label.visible = false

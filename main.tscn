@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=13 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_jl7ro"]
 [ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="2_bgt2e"]
@@ -15,6 +15,9 @@ background_mode = 2
 sky = SubResource("Sky_2wcm7")
 tonemap_mode = 2
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_ui7ay"]
+size = Vector3(10, 6.70715, 27.7979)
+
 [sub_resource type="PlaneMesh" id="PlaneMesh_r4355"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h7dw4"]
@@ -28,6 +31,9 @@ material = ExtResource("2_bgt2e")
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_lurw7"]
 material = ExtResource("2_bgt2e")
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wsshn"]
+size = Vector3(15, 15, 15)
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_jl7ro")
@@ -43,6 +49,12 @@ transform = Transform3D(0.965926, 0.25, -0.0669873, 9.02727e-17, 0.258819, 0.965
 projection = 1
 size = 10.0
 far = 500.0
+
+[node name="Area3D" type="Area3D" parent="Camera3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Camera3D/Area3D"]
+transform = Transform3D(1, -4.03634e-08, -1.70913e-06, 3.70817e-09, 1, 6.4092e-06, -4.64518e-09, -6.98735e-09, 0.999998, 1.23754e-05, -0.00341343, -13.8989)
+shape = SubResource("BoxShape3D_ui7ay")
 
 [node name="Ground" type="Area3D" parent="."]
 
@@ -78,7 +90,6 @@ skeleton = NodePath("../../..")
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="EnergyLabel" type="Label" parent="UI"]
-unique_name_in_owner = true
 offset_left = 10.0
 offset_top = 770.0
 offset_right = 90.0
@@ -86,9 +97,22 @@ offset_bottom = 793.0
 text = "Energy: 0"
 
 [node name="TooltipLabel" type="Label" parent="UI"]
-unique_name_in_owner = true
+visible = false
 offset_left = 600.0
 offset_top = 400.0
 offset_right = 718.0
 offset_bottom = 423.0
 text = "-10 energy"
+
+[node name="WarningLabel" type="Label" parent="UI"]
+visible = false
+offset_right = 190.0
+offset_bottom = 40.0
+text = "Enemies approaching!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="EnemySpawnPoint" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EnemySpawnPoint"]
+shape = SubResource("BoxShape3D_wsshn")
