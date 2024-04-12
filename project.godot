@@ -30,7 +30,10 @@ window/size/viewport_height=800
 window/size/window_width_override=2400
 window/size/window_height_override=1600
 window/stretch/mode="viewport"
-window/stretch/scale=0.5
+
+[gui]
+
+theme/custom="res://theme.tres"
 
 [rendering]
 

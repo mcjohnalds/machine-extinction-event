@@ -1,34 +1,60 @@
-extends Node3D
+class_name Main extends Node3D
 
-enum BuildingType {TURRET, WALL}
+enum BuildingType {TURRET, WALL, MINE, INVALID}
+const BUILDING_ENERGY_COST = {
+	BuildingType.TURRET: 10,
+	BuildingType.WALL: 2,
+	BuildingType.MINE: 10,
+}
+const BUILDING_ENERGY_SELL_VALUE = {
+	BuildingType.TURRET: 5,
+	BuildingType.WALL: 1,
+	BuildingType.MINE: 5,
+}
 var turret_scene := preload("res://turret.tscn")
 var wall_scene := preload("res://wall.tscn")
 var enemy_scene := preload("res://enemy.tscn")
+var tracer_scene := preload("res://tracer.tscn")
+var uranium_scene := preload("res://uranium.tscn")
+var mine_scene := preload("res://mine.tscn")
 var player_transparent := preload("res://player_transparent.tres")
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var launchpad := $Buildings/Launchpad as Node3D
-@onready var turret_ghost := $Ghost/Turret as Node3D
-@onready var wall_ghost := $Ghost/Wall as Node3D
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
+@onready var energy_label := %EnergyLabel as Label
+@onready var tooltip_label := %TooltipLabel as Label
+var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
 var grid_to_building := {} # Dictionary[Vector2i, Node3D]
+var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
+var energy := 30
 
 
 func _ready() -> void:
 	grid_to_building[Vector2i(0, 0)] = launchpad
+	ground.input_event.connect(_on_ground_input_event)
+	ghost.add_child(turret_scene.instantiate())
+	make_ghost_transparent()
+	start_enemy_spawn_loop()
+	start_energy_loop()
+	for row in range(-100, 100):
+		for col in range(-100, 100):
+			if randf() < 0.03 and (row != 0 or col != 0):
+				var uranium := uranium_scene.instantiate() as Node3D
+				uranium.position.x = row
+				uranium.position.z = col
+				add_child(uranium)
+				grid_to_uranium[Vector2i(row, col)] = uranium
 
-	for mesh: MeshInstance3D in ghost.find_children("*", "MeshInstance3D"):
-		mesh.material_override = player_transparent
 
-	ground.input_event.connect(_on_input_event)
 
-	while true:
-		var enemy := enemy_scene.instantiate() as Node3D
-		enemy.position = Vector3(5.0, 0.0, 5.0)
-		enemies.add_child(enemy)
-		await get_tree().create_timer(1.0).timeout
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		var e := event as InputEventMouseMotion
+		tooltip_label.position.x = e.position.x
+		tooltip_label.position.y = e.position.y
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -38,47 +64,55 @@ func _unhandled_input(event: InputEvent) -> void:
 			match e.keycode:
 				KEY_1:
 					building_type = BuildingType.TURRET
-					turret_ghost.visible = true
-					wall_ghost.visible = false
+					ghost.get_child(0).queue_free()
+					ghost.add_child(turret_scene.instantiate())
 				KEY_2:
 					building_type = BuildingType.WALL
-					turret_ghost.visible = false
-					wall_ghost.visible = true
+					ghost.get_child(0).queue_free()
+					ghost.add_child(wall_scene.instantiate())
+				KEY_3:
+					building_type = BuildingType.MINE
+					ghost.get_child(0).queue_free()
+					ghost.add_child(mine_scene.instantiate())
 				KEY_ESCAPE:
 					get_tree().quit()
+			make_ghost_transparent()
 
 
-func _on_input_event(
+func _on_ground_input_event(
 	_camera: Node,
 	event: InputEvent,
 	event_position: Vector3,
 	_normal: Vector3,
 	_shape_idx: int
 ) -> void:
-	var grid_coord := Vector2i(roundi(event_position.x), roundi(event_position.z))
-	var grid_pos := Vector3(grid_coord.x, 0.0, grid_coord.y)
-	if event is InputEventMouseMotion:
-		ghost.position = grid_pos
+	mouse_position_3d = Vector3(event_position.x, 0.0, event_position.z)
+	var grid_coord := Vector2i(roundi(mouse_position_3d.x), roundi(mouse_position_3d.z))
 
-	ghost.visible = grid_coord not in grid_to_building
-
-	if event.is_pressed():
-		if grid_coord in grid_to_building:
+	if can_place_building():
+		if event.is_pressed():
+			var building_cost: int = BUILDING_ENERGY_COST[building_type]
+			set_energy(energy - building_cost)
+			var building_scene := (
+				turret_scene if building_type == BuildingType.TURRET
+				else wall_scene if building_type == BuildingType.WALL
+				else mine_scene
+			)
+			var building := building_scene.instantiate() as Node3D
+			building.position = Vector3(roundi(mouse_position_3d.x), 0.0, roundi(mouse_position_3d.z))
+			grid_to_building[grid_coord] = building
+			buildings.add_child(building)
+	elif can_sell_building():
+		if event.is_pressed():
+			set_energy(energy + get_sell_value())
 			var building: Node3D = grid_to_building[grid_coord]
 			building.queue_free()
 			grid_to_building.erase(grid_coord)
-		else:
-			var building_scene := (
-				turret_scene if building_type == BuildingType.TURRET
-				else wall_scene
-			)
-			var building := building_scene.instantiate() as Node3D
-			building.position = grid_pos
-			grid_to_building[grid_coord] = building
-			buildings.add_child(building)
 
 
 func _process(delta: float) -> void:
+	update_tooltip()
+	update_ghost()
 	for enemy: Node3D in enemies.get_children():
 		if grid_to_building.is_empty():
 			continue
@@ -90,6 +124,37 @@ func _process(delta: float) -> void:
 			nearest_building.queue_free()
 			enemy.queue_free()
 			grid_to_building.erase(grid_coord)
+	for grid_coord: Vector2i in grid_to_building:
+		var building: Node3D = grid_to_building[grid_coord]
+		if building is Turret:
+			var turret := building as Turret
+			if enemies.get_children().is_empty():
+				continue
+			var nearest_enemy: Node3D = null
+			for enemy: Node3D in enemies.get_children():
+				if (
+					not nearest_enemy
+					or turret.position.distance_to(enemy.position)
+						< turret.position.distance_to(nearest_enemy.position)
+				):
+					nearest_enemy = enemy
+			if get_time() - turret.last_fired_at > 2.0:
+				turret.last_fired_at = get_time()
+				add_tracer(turret, nearest_enemy)
+				nearest_enemy.queue_free()
+				var gun := turret.find_child("Gun") as Node3D
+				gun.look_at(nearest_enemy.position, Vector3.UP, true)
+
+
+func add_tracer(turret: Node3D, enemy: Node3D) -> void:
+	var tracer := tracer_scene.instantiate() as Node3D
+	add_child(tracer)
+	tracer.position = turret.position
+	tracer.look_at(enemy.position, Vector3.UP, true)
+	tracer.scale.z = tracer.position.distance_to(enemy.position)
+	get_tree().create_timer(0.1).timeout.connect(func() -> void:
+		tracer.queue_free()
+	)
 
 
 func get_nearest_building(pos: Vector3) -> Vector2i:
@@ -101,3 +166,101 @@ func get_nearest_building(pos: Vector3) -> Vector2i:
 		if pos.distance_to(a.position) < pos.distance_to(b.position):
 			nearest_grid_coord = grid_coord
 	return nearest_grid_coord
+
+
+func get_time() -> float:
+	return Time.get_ticks_msec() / 1000.0
+
+
+func make_ghost_transparent() -> void:
+	var meshes := ghost.find_children("*", "MeshInstance3D", true, false)
+	for mesh: MeshInstance3D in meshes:
+		mesh.material_override = player_transparent
+
+
+func start_enemy_spawn_loop() -> void:
+	var t := 2.0
+	while true:
+		var enemy := enemy_scene.instantiate() as Node3D
+		enemy.position = Vector3(10.0, 0.0, 10.0)
+		enemy.position.x += randf_range(-3.0, 3.0)
+		enemy.position.z += randf_range(-3.0, 3.0)
+		enemies.add_child(enemy)
+		await get_tree().create_timer(t).timeout
+		t -= 0.03
+		t = maxf(t, 0.1)
+
+
+func start_energy_loop() -> void:
+	while true:
+		set_energy(energy + 1)
+		for building in buildings.get_children():
+			if building is Mine:
+				set_energy(energy + 1)
+		await get_tree().create_timer(1.0).timeout
+
+
+func set_energy(new_energy: int) -> void:
+	energy = new_energy
+	energy_label.text = "Energy: %s" % energy
+
+
+func update_tooltip() -> void:
+	if can_place_building():
+		var building_cost: int = BUILDING_ENERGY_COST[building_type]
+		tooltip_label.text = "Build for -%s energy" % building_cost
+		tooltip_label.visible = true
+	elif can_sell_building():
+		tooltip_label.text = "Sell for +%s energy" % get_sell_value()
+		tooltip_label.visible = true
+	else:
+		tooltip_label.visible = false
+
+
+func update_ghost() -> void:
+	ghost.position = Vector3(roundi(mouse_position_3d.x), 0.0, roundi(mouse_position_3d.z))
+	ghost.visible = can_place_building()
+
+
+func can_place_building() -> bool:
+	var grid_coord := Vector2i(
+		roundi(mouse_position_3d.x),
+		roundi(mouse_position_3d.z)
+	)
+	var building_cost: int = BUILDING_ENERGY_COST[building_type]
+	return (
+		(
+			building_type == BuildingType.MINE and grid_coord in grid_to_uranium
+			or (
+				building_type != BuildingType.MINE
+				and grid_coord not in grid_to_building
+				and grid_coord not in grid_to_uranium
+			)
+		)
+		and energy >= building_cost
+	)
+
+
+func can_sell_building() -> bool:
+	var grid_coord := Vector2i(
+		roundi(mouse_position_3d.x),
+		roundi(mouse_position_3d.z)
+	)
+	return (
+		grid_coord in grid_to_building and grid_coord != Vector2i(0, 0)
+	)
+
+
+func get_sell_value() -> int:
+	var grid_coord := Vector2i(
+		roundi(mouse_position_3d.x),
+		roundi(mouse_position_3d.z)
+	)
+	var building_under_mouse_type := (
+		BuildingType.TURRET if grid_to_building[grid_coord] is Turret
+		else BuildingType.WALL if grid_to_building[grid_coord] is Wall
+		else BuildingType.MINE if grid_to_building[grid_coord] is Mine
+		else BuildingType.INVALID
+	)
+	assert(building_under_mouse_type != BuildingType.INVALID)
+	return BUILDING_ENERGY_SELL_VALUE[building_under_mouse_type]

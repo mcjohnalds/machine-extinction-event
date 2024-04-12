@@ -1,5 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cdl15ju1voxhk"]
+[gd_scene load_steps=5 format=3 uid="uid://cdl15ju1voxhk"]
 
+[ext_resource type="Script" path="res://turret.gd" id="1_5sndl"]
 [ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="1_pckrt"]
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_yc31u"]
@@ -10,15 +11,16 @@ material = ExtResource("1_pckrt")
 
 [node name="Turret" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
+script = ExtResource("1_5sndl")
 
 [node name="Base" type="MeshInstance3D" parent="."]
 transform = Transform3D(0.75, 0, 0, 0, 0.22325, 0, 0, 0, 0.75, 0, 0.218402, 0)
 mesh = SubResource("CylinderMesh_yc31u")
 skeleton = NodePath("../..")
 
-[node name="Turret" type="Node3D" parent="."]
+[node name="Gun" type="Node3D" parent="."]
 
-[node name="Cylinder" type="MeshInstance3D" parent="Turret"]
-transform = Transform3D(0.094981, 0, 0, 0, -4.80509e-09, -0.094981, 0, 0.109927, -4.15175e-09, 0, 0.301197, -0.421219)
+[node name="Cylinder" type="MeshInstance3D" parent="Gun"]
+transform = Transform3D(0.094981, 0, 0, 0, -4.80509e-09, -0.094981, 0, 0.109927, -4.15175e-09, 2.08165e-12, 0.301, 0.421)
 mesh = SubResource("CylinderMesh_lurw7")
 skeleton = NodePath("../../..")
