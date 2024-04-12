@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://5270ncwd4vaa"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_87iqs"]
+albedo_color = Color(0.729412, 0.364706, 0.364706, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_gcjqb"]
+material = SubResource("StandardMaterial3D_87iqs")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s1sjh"]
+albedo_color = Color(0.729412, 0.364706, 0.364706, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_pqc88"]
+material = SubResource("StandardMaterial3D_s1sjh")
+
+[node name="Enemy" type="Node3D"]
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.371993, 0, 0, 0, 0.272133, 0, 0, 0, 0.5, 0, 0.117355, 0)
+mesh = SubResource("BoxMesh_gcjqb")
+
+[node name="Gun" type="MeshInstance3D" parent="."]
+transform = Transform3D(0.081502, 0, 0, 0, 0.0260363, -0.0772314, 0, 0.0772314, 0.0260363, 0, 0.250073, 0.264607)
+mesh = SubResource("CylinderMesh_pqc88")

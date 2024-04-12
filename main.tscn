@@ -1,0 +1,84 @@
+[gd_scene load_steps=13 format=3 uid="uid://ca5w6pligjaeb"]
+
+[ext_resource type="Script" path="res://main.gd" id="1_jl7ro"]
+[ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="2_bgt2e"]
+[ext_resource type="PackedScene" uid="uid://cdl15ju1voxhk" path="res://turret.tscn" id="3_myx7p"]
+[ext_resource type="PackedScene" uid="uid://7cjndxgwsyn7" path="res://wall.tscn" id="3_owmjx"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hfirg"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_2wcm7"]
+sky_material = SubResource("ProceduralSkyMaterial_hfirg")
+
+[sub_resource type="Environment" id="Environment_kvejx"]
+background_mode = 2
+sky = SubResource("Sky_2wcm7")
+tonemap_mode = 2
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_r4355"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h7dw4"]
+albedo_color = Color(0.639216, 0.639216, 0.639216, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ayy8k"]
+size = Vector3(2000, 1, 2000)
+
+[sub_resource type="BoxMesh" id="BoxMesh_xnaa5"]
+material = ExtResource("2_bgt2e")
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_lurw7"]
+material = ExtResource("2_bgt2e")
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_jl7ro")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_kvejx")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.965926, 0.25, -0.0669873, 9.02727e-17, 0.258819, 0.965926, 0.258819, -0.933013, 0.25, -0.75, 10, 2.5)
+projection = 1
+size = 10.0
+far = 500.0
+
+[node name="Ground" type="Area3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 0, 0)
+mesh = SubResource("PlaneMesh_r4355")
+skeleton = NodePath("../..")
+surface_material_override/0 = SubResource("StandardMaterial3D_h7dw4")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("BoxShape3D_ayy8k")
+
+[node name="Ghost" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+
+[node name="Turret" parent="Ghost" instance=ExtResource("3_myx7p")]
+
+[node name="Wall" parent="Ghost" instance=ExtResource("3_owmjx")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
+visible = false
+
+[node name="Enemies" type="Node" parent="."]
+
+[node name="Buildings" type="Node" parent="."]
+
+[node name="Launchpad" type="Node3D" parent="Buildings"]
+
+[node name="Base" type="MeshInstance3D" parent="Buildings/Launchpad"]
+transform = Transform3D(0.75, 0, 0, 0, 0.075, 0, 0, 0, 0.75, 0, 0.0270113, 0)
+mesh = SubResource("BoxMesh_xnaa5")
+skeleton = NodePath("../../..")
+
+[node name="Rocket" type="MeshInstance3D" parent="Buildings/Launchpad"]
+transform = Transform3D(0.256716, 0, 0, 0, 0.256716, 0, 0, 0, 0.256716, 0, 0.305468, 0)
+mesh = SubResource("CylinderMesh_lurw7")
+skeleton = NodePath("../../..")
