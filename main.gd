@@ -1,5 +1,6 @@
 class_name Main extends Node3D
 
+const CAMERA_SPEED = 7.0
 enum BuildingType {TURRET, WALL, MINE, INVALID}
 const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 10,
@@ -25,6 +26,7 @@ var player_transparent := preload("res://player_transparent.tres")
 @onready var buildings := $Buildings as Node
 @onready var energy_label := %EnergyLabel as Label
 @onready var tooltip_label := %TooltipLabel as Label
+@onready var camera := $Camera3D as Camera3D
 var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
 var grid_to_building := {} # Dictionary[Vector2i, Node3D]
@@ -80,39 +82,46 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _on_ground_input_event(
-	_camera: Node,
+	_camera: Camera3D,
 	event: InputEvent,
 	event_position: Vector3,
 	_normal: Vector3,
 	_shape_idx: int
 ) -> void:
 	mouse_position_3d = Vector3(event_position.x, 0.0, event_position.z)
-	var grid_coord := Vector2i(roundi(mouse_position_3d.x), roundi(mouse_position_3d.z))
+	var grid_coord := Vector2i(
+		roundi(mouse_position_3d.x),
+		roundi(mouse_position_3d.z)
+	)
 
-	if can_place_building():
-		if event.is_pressed():
-			var building_cost: int = BUILDING_ENERGY_COST[building_type]
-			set_energy(energy - building_cost)
-			var building_scene := (
-				turret_scene if building_type == BuildingType.TURRET
-				else wall_scene if building_type == BuildingType.WALL
-				else mine_scene
-			)
-			var building := building_scene.instantiate() as Node3D
-			building.position = Vector3(roundi(mouse_position_3d.x), 0.0, roundi(mouse_position_3d.z))
-			grid_to_building[grid_coord] = building
-			buildings.add_child(building)
-	elif can_sell_building():
-		if event.is_pressed():
-			set_energy(energy + get_sell_value())
-			var building: Node3D = grid_to_building[grid_coord]
-			building.queue_free()
-			grid_to_building.erase(grid_coord)
+	if event.is_pressed():
+		if can_place_building():
+				var building_cost: int = BUILDING_ENERGY_COST[building_type]
+				set_energy(energy - building_cost)
+				var building_scene := (
+					turret_scene if building_type == BuildingType.TURRET
+					else wall_scene if building_type == BuildingType.WALL
+					else mine_scene
+				)
+				var building := building_scene.instantiate() as Node3D
+				building.position = Vector3(
+					roundi(mouse_position_3d.x),
+					0.0,
+					roundi(mouse_position_3d.z)
+				)
+				grid_to_building[grid_coord] = building
+				buildings.add_child(building)
+		elif can_sell_building():
+				set_energy(energy + get_sell_value())
+				var building: Node3D = grid_to_building[grid_coord]
+				building.queue_free()
+				grid_to_building.erase(grid_coord)
 
 
 func _process(delta: float) -> void:
 	update_tooltip()
 	update_ghost()
+	update_camera(delta)
 	for enemy: Node3D in enemies.get_children():
 		if grid_to_building.is_empty():
 			continue
@@ -264,3 +273,19 @@ func get_sell_value() -> int:
 	)
 	assert(building_under_mouse_type != BuildingType.INVALID)
 	return BUILDING_ENERGY_SELL_VALUE[building_under_mouse_type]
+
+
+func update_camera(delta: float) -> void:
+	if Input.is_key_pressed(KEY_A):
+		camera.position -= camera.basis.x * delta * CAMERA_SPEED
+	if Input.is_key_pressed(KEY_D):
+		camera.position += camera.basis.x * delta * CAMERA_SPEED
+	var up_direction := -Vector3(
+		camera.basis.z.x,
+		0,
+		camera.basis.z.z
+	).normalized()
+	if Input.is_key_pressed(KEY_W):
+		camera.position += up_direction * delta * CAMERA_SPEED
+	if Input.is_key_pressed(KEY_S):
+		camera.position -= up_direction * delta * CAMERA_SPEED
