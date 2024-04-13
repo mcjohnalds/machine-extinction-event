@@ -1,20 +1,20 @@
 class_name Main extends Node3D
 
-const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 20.0
-const CAMERA_SPEED := 7.0
+const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
+const CAMERA_SPEED := 6.0
 const TURRET_RADIUS := 6.0
 enum BuildingType {TURRET, WALL, MINE, LAB, INVALID}
 const BUILDING_ENERGY_COST = {
-	BuildingType.TURRET: 10,
-	BuildingType.WALL: 2,
-	BuildingType.MINE: 10,
-	BuildingType.LAB: 10,
+	BuildingType.TURRET: 100,
+	BuildingType.WALL: 20,
+	BuildingType.MINE: 100,
+	BuildingType.LAB: 100,
 }
 const BUILDING_ENERGY_SELL_VALUE = {
-	BuildingType.TURRET: 5,
-	BuildingType.WALL: 1,
-	BuildingType.MINE: 5,
-	BuildingType.LAB: 5,
+	BuildingType.TURRET: 50,
+	BuildingType.WALL: 10,
+	BuildingType.MINE: 50,
+	BuildingType.LAB: 50,
 }
 var turret_scene := preload("res://turret.tscn")
 var wall_scene := preload("res://wall.tscn")
@@ -47,7 +47,7 @@ var building_type := BuildingType.TURRET
 var grid_to_building := {} # Dictionary[Vector2i, Node3D]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
-var energy := 30
+var energy := 100
 var science := 0
 var camera_offset := Vector3.ZERO
 var enemy_spawn_position := Vector3.ZERO
@@ -228,13 +228,13 @@ func get_time() -> float:
 
 
 func start_enemy_spawn_loop() -> void:
-	await get_tree().create_timer(3.0).timeout
-	var enemies_per_wave := 3.0
+	await get_tree().create_timer(20.0).timeout
+	var enemies_per_wave := 1.0
 	while true:
 		enemy_spawn_position = random_enemy_spawn_position()
 
 		warning_label.visible = true
-		get_tree().create_timer(10.0).timeout.connect(func() -> void:
+		get_tree().create_timer(30.0).timeout.connect(func() -> void:
 			warning_label.visible = false
 		)
 
@@ -246,9 +246,9 @@ func start_enemy_spawn_loop() -> void:
 				enemy_spawn_position.z + randf_range(-3.0, 3.0),
 			)
 			enemies.add_child(enemy)
-		enemies_per_wave *= 1.5
+		enemies_per_wave = enemies_per_wave * 1.2 + 1.0
 
-		await get_tree().create_timer(20.0).timeout
+		await get_tree().create_timer(60.0).timeout
 
 
 func start_energy_loop() -> void:
@@ -277,7 +277,7 @@ func set_science(new_science: int) -> void:
 	science = new_science
 	science_label.text = "Science: %s" % science
 	science_remaining_label.text = (
-		"Science until rocket launch: %s" % maxi(0, 500 - new_science)
+		"Science until rocket launch: %s" % maxi(0, 5000 - new_science)
 	)
 
 
