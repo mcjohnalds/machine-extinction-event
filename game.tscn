@@ -122,26 +122,33 @@ smooth_faces = false
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
+[node name="ColorRect" type="ColorRect" parent="HUD"]
+offset_right = 120.0
+offset_bottom = 800.0
+color = Color(0.301961, 0.301961, 0.301961, 1)
+
 [node name="EnergyLabel" type="Label" parent="HUD"]
 offset_left = 10.0
-offset_top = 710.0
+offset_top = 650.0
 offset_right = 90.0
-offset_bottom = 733.0
+offset_bottom = 673.0
 text = "Energy: 0"
 
 [node name="ScienceLabel" type="Label" parent="HUD"]
 offset_left = 10.0
-offset_top = 740.0
+offset_top = 690.0
 offset_right = 90.0
-offset_bottom = 763.0
+offset_bottom = 713.0
 text = "Science: 0"
 
-[node name="ScienceRemainingLabel" type="Label" parent="HUD"]
+[node name="ScienceRequiredLabel" type="Label" parent="HUD"]
 offset_left = 10.0
-offset_top = 770.0
-offset_right = 248.0
-offset_bottom = 793.0
-text = "Science until rocket launch: 0"
+offset_top = 730.0
+offset_right = 120.0
+offset_bottom = 790.0
+theme_override_font_sizes/font_size = 13
+text = "1234 science required to launch rocket"
+autowrap_mode = 3
 
 [node name="TooltipLabel" type="Label" parent="HUD"]
 visible = false
@@ -158,6 +165,35 @@ offset_bottom = 40.0
 text = "Enemies approaching!"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TurretButton" type="Button" parent="HUD"]
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 110.0
+offset_bottom = 100.0
+disabled = true
+text = "Turret"
+
+[node name="WallButton" type="Button" parent="HUD"]
+offset_left = 10.0
+offset_top = 110.0
+offset_right = 110.0
+offset_bottom = 200.0
+text = "Wall"
+
+[node name="MineButton" type="Button" parent="HUD"]
+offset_left = 10.0
+offset_top = 210.0
+offset_right = 110.0
+offset_bottom = 300.0
+text = "Mine"
+
+[node name="LabButton" type="Button" parent="HUD"]
+offset_left = 10.0
+offset_top = 310.0
+offset_right = 110.0
+offset_bottom = 400.0
+text = "Lab"
 
 [node name="CinematicBars" type="CanvasLayer" parent="."]
 visible = false

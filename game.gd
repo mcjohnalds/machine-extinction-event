@@ -2,12 +2,13 @@ class_name Game extends Node3D
 
 signal won
 signal lost
+const SCIENCE_REQUIRED_TO_LAUNCH := 5000
 const BUILDING_COMPLETION_DURATION := 10.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
 const CAMERA_SPEED := 6.0
 const TURRET_RADIUS := 5.0
 enum GameResult {WON, LOST}
-enum BuildingType {TURRET, WALL, MINE, LAB, INVALID}
+enum BuildingType {TURRET, WALL, MINE, LAB}
 const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 50,
 	BuildingType.WALL: 10,
@@ -40,9 +41,13 @@ var player_ghost := preload("res://player_ghost.tres") as BaseMaterial3D
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
 @onready var hud := $HUD as CanvasLayer
+@onready var turret_button := $HUD/TurretButton as Button
+@onready var wall_button := $HUD/WallButton as Button
+@onready var mine_button := $HUD/MineButton as Button
+@onready var lab_button := $HUD/LabButton as Button
 @onready var energy_label := $HUD/EnergyLabel as Label
 @onready var science_label := $HUD/ScienceLabel as Label
-@onready var science_remaining_label := $HUD/ScienceRemainingLabel as Label
+@onready var science_required_label := $HUD/ScienceRequiredLabel as Label
 @onready var tooltip_label := $HUD/TooltipLabel as Label
 @onready var warning_label := $HUD/WarningLabel as Control
 @onready var cinematic_bars := $CinematicBars as CanvasLayer
@@ -67,8 +72,24 @@ var is_rocket_taking_off := false
 
 
 func _ready() -> void:
+	science_required_label.text = (
+		"%s science required to launch rocket" % SCIENCE_REQUIRED_TO_LAUNCH
+	)
 	set_science(science)
 	set_energy(energy)
+
+	turret_button.pressed.connect(func() -> void:
+		select_building_type(BuildingType.TURRET)
+	)
+	wall_button.pressed.connect(func() -> void:
+		select_building_type(BuildingType.WALL)
+	)
+	mine_button.pressed.connect(func() -> void:
+		select_building_type(BuildingType.MINE)
+	)
+	lab_button.pressed.connect(func() -> void:
+		select_building_type(BuildingType.LAB)
+	)
 
 	camera_offset = camera.position
 	grid_to_building[Vector2i(0, 0)] = launchpad
@@ -103,21 +124,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if e.pressed:
 			match e.keycode:
 				KEY_1:
-					building_type = BuildingType.TURRET
-					hide_ghost_children()
-					ghost_turret.visible = true
+					select_building_type(BuildingType.TURRET)
 				KEY_2:
-					building_type = BuildingType.WALL
-					hide_ghost_children()
-					ghost_wall.visible = true
+					select_building_type(BuildingType.WALL)
 				KEY_3:
-					building_type = BuildingType.MINE
-					hide_ghost_children()
-					ghost_mine.visible = true
+					select_building_type(BuildingType.MINE)
 				KEY_4:
-					building_type = BuildingType.LAB
-					hide_ghost_children()
-					ghost_lab.visible = true
+					select_building_type(BuildingType.LAB)
 
 
 func _on_ground_input_event(
@@ -272,8 +285,7 @@ func set_energy(new_energy: int) -> void:
 func set_science(new_science: int) -> void:
 	science = new_science
 	science_label.text = "Science: %s" % science
-	var remaining := maxi(0, 5000 - new_science)
-	science_remaining_label.text = "Science until rocket launch: %s" % remaining
+	var remaining := maxi(0, SCIENCE_REQUIRED_TO_LAUNCH - new_science)
 	if remaining == 0:
 		play_game_over_sequence(GameResult.WON)
 
@@ -363,15 +375,16 @@ func get_sell_value() -> int:
 		roundi(mouse_position_3d.x),
 		roundi(mouse_position_3d.z)
 	)
-	var building_under_mouse_type := (
-		BuildingType.TURRET if grid_to_building[grid_coord] is Turret
-		else BuildingType.WALL if grid_to_building[grid_coord] is Wall
-		else BuildingType.MINE if grid_to_building[grid_coord] is Mine
-		else BuildingType.LAB if grid_to_building[grid_coord] is Lab
-		else BuildingType.INVALID
-	)
-	assert(building_under_mouse_type != BuildingType.INVALID)
-	return BUILDING_ENERGY_SELL_VALUE[building_under_mouse_type]
+	if grid_to_building[grid_coord] is Turret:
+		return BuildingType.TURRET
+	if grid_to_building[grid_coord] is Wall:
+		return BuildingType.WALL
+	if grid_to_building[grid_coord] is Mine:
+		return BuildingType.MINE
+	if grid_to_building[grid_coord] is Lab:
+		return BuildingType.LAB
+	push_error("Invalid state")
+	return BuildingType.TURRET
 
 
 func process_camera_wasd(delta: float) -> void:
@@ -569,3 +582,25 @@ func spawn_all_uranium() -> void:
 			)
 			if randf() < 0.03 and not close_to_launchpad:
 				add_uranium(Vector2i(row, col))
+
+
+func select_building_type(t: BuildingType) -> void:
+	building_type = t
+	hide_ghost_children()
+	turret_button.disabled = false
+	wall_button.disabled = false
+	mine_button.disabled = false
+	lab_button.disabled = false
+	match t:
+		BuildingType.TURRET:
+			ghost_turret.visible = true
+			turret_button.disabled = true
+		BuildingType.WALL:
+			ghost_wall.visible = true
+			wall_button.disabled = true
+		BuildingType.MINE:
+			ghost_mine.visible = true
+			mine_button.disabled = true
+		BuildingType.LAB:
+			ghost_lab.visible = true
+			lab_button.disabled = true

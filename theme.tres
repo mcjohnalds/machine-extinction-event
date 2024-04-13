@@ -1,5 +1,8 @@
-[gd_resource type="Theme" format=3 uid="uid://dd40wdgage8g7"]
+[gd_resource type="Theme" load_steps=2 format=3 uid="uid://dd40wdgage8g7"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l3ba6"]
 
 [resource]
+Button/styles/focus = SubResource("StyleBoxEmpty_l3ba6")
 Label/colors/font_outline_color = Color(0, 0, 0, 1)
 Label/constants/outline_size = 3
