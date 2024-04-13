@@ -32,6 +32,7 @@ var uranium_scene := preload("res://uranium.tscn")
 var mine_scene := preload("res://mine.tscn")
 var player_transparent := preload("res://player_transparent.tres") as BaseMaterial3D
 var player_ghost := preload("res://player_ghost.tres") as BaseMaterial3D
+var blank_cursor := preload("res://blank_cursor.png")
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -552,7 +553,9 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 	ghost.visible = false
 	camera.position = camera_offset
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+	Input.set_custom_mouse_cursor(blank_cursor)
 	get_tree().create_timer(30.0 if w else 3.0).timeout.connect(func() -> void:
+		Input.set_custom_mouse_cursor(null)
 		if w:
 			won.emit()
 		else:
