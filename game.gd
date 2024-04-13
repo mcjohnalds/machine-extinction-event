@@ -7,6 +7,8 @@ const BUILDING_COMPLETION_DURATION := 10.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
 const CAMERA_SPEED := 6.0
 const TURRET_RADIUS := 5.0
+const GHOST_VALID := Color("5d8fba7f")
+const GHOST_INVALID := Color("37546e3e")
 enum GameResult {WON, LOST}
 enum BuildingType {TURRET, WALL, MINE, LAB}
 const BUILDING_ENERGY_COST = {
@@ -48,14 +50,14 @@ var player_ghost := preload("res://player_ghost.tres") as BaseMaterial3D
 @onready var energy_label := $HUD/EnergyLabel as Label
 @onready var science_label := $HUD/ScienceLabel as Label
 @onready var science_required_label := $HUD/ScienceRequiredLabel as Label
-@onready var tooltip_label := $HUD/TooltipLabel as Label
+@onready var tooltip := $HUD/Tooltip as Control
+@onready var tooltip_label := $HUD/Tooltip/Label as Label
 @onready var warning_label := $HUD/WarningLabel as Control
 @onready var cinematic_bars := $CinematicBars as CanvasLayer
 @onready var camera := $Camera3D as Camera3D
 @onready var fog_of_war := $FogOfWar as Node3D
 @onready var launchpad_visibility_ring := $FogOfWar/VisibilityRing as Node3D
 @onready var rocket := $Rocket as Node3D
-var player_ghost_saturation_max := player_ghost.albedo_color.s
 var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
 var grid_to_building := {} # Dictionary[Vector2i, Node3D]
@@ -112,8 +114,8 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		var e := event as InputEventMouseMotion
-		tooltip_label.position.x = e.position.x
-		tooltip_label.position.y = e.position.y
+		tooltip.position.x = e.position.x
+		tooltip.position.y = e.position.y
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -293,15 +295,14 @@ func set_science(new_science: int) -> void:
 func process_tooltip() -> void:
 	if is_game_over:
 		return
+	tooltip.visible = true
 	if can_place_building():
 		var building_cost: int = BUILDING_ENERGY_COST[building_type]
-		tooltip_label.text = "Build for -%s energy" % building_cost
-		tooltip_label.visible = true
+		tooltip_label.text = "✓ Build for -%s energy" % building_cost
 	elif can_sell_building():
-		tooltip_label.text = "Sell for +%s energy" % get_sell_value()
-		tooltip_label.visible = true
+		tooltip_label.text = "✓ Sell for +%s energy" % get_sell_value()
 	else:
-		tooltip_label.visible = false
+		tooltip_label.text = "✖ %s" % get_invalid_building_placement_reason()
 
 
 func process_ghost() -> void:
@@ -312,17 +313,22 @@ func process_ghost() -> void:
 		0.0,
 		roundi(mouse_position_3d.z)
 	)
-	ghost.visible = can_place_building()
-
-	var min_saturation := 0.1
+	ghost_turret_ring.visible = can_place_building()
+	player_ghost.albedo_color = (
+		GHOST_VALID if can_place_building() else GHOST_INVALID
+	)
+	var min_s := 0.1
+	var max_s := GHOST_VALID.s
 	# t varies between 0 and 1 over time
 	var t := (0.5 + 0.5 * sin(4.0 * get_time()))
-	player_ghost.albedo_color.s = (
-		min_saturation + t * (player_ghost_saturation_max - min_saturation)
-	)
+	player_ghost.albedo_color.s = min_s + t * (max_s - min_s)
 
 
 func can_place_building() -> bool:
+	return get_invalid_building_placement_reason() == ""
+
+
+func get_invalid_building_placement_reason() -> String:
 	var grid_coord := Vector2i(
 		roundi(mouse_position_3d.x),
 		roundi(mouse_position_3d.z)
@@ -342,18 +348,17 @@ func can_place_building() -> bool:
 		):
 			has_nearby_building = true
 			break
-	return (
-		(
-			building_type == BuildingType.MINE and grid_coord in grid_to_uranium
-			or (
-				building_type != BuildingType.MINE
-				and grid_coord not in grid_to_uranium
-			)
-		)
-		and energy >= building_cost
-		and has_nearby_building
-		and grid_coord not in grid_to_building
-	)
+	if building_type == BuildingType.MINE and not grid_coord in grid_to_uranium:
+		return "can only place mine on uranium"
+	if building_type != BuildingType.MINE and grid_coord in grid_to_uranium:
+		return "can't place this building on uranium"
+	if energy < building_cost:
+		return "not enough energy to afford this"
+	if not has_nearby_building:
+		return "can only place building near another building"
+	if grid_coord in grid_to_building:
+		return "can't place building on top of another building"
+	return ""
 
 
 func can_sell_building() -> bool:

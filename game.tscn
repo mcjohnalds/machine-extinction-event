@@ -150,14 +150,6 @@ theme_override_font_sizes/font_size = 13
 text = "1234 science required to launch rocket"
 autowrap_mode = 3
 
-[node name="TooltipLabel" type="Label" parent="HUD"]
-visible = false
-offset_left = 600.0
-offset_top = 400.0
-offset_right = 718.0
-offset_bottom = 423.0
-text = "-10 energy"
-
 [node name="WarningLabel" type="Label" parent="HUD"]
 visible = false
 offset_right = 190.0
@@ -194,6 +186,22 @@ offset_top = 310.0
 offset_right = 110.0
 offset_bottom = 400.0
 text = "Lab"
+
+[node name="Tooltip" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 600.0
+offset_top = 400.0
+offset_right = 710.0
+offset_bottom = 440.0
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="HUD/Tooltip"]
+offset_left = 20.0
+offset_top = -6.0
+offset_right = 138.0
+offset_bottom = 17.0
+text = "-10 energy"
 
 [node name="CinematicBars" type="CanvasLayer" parent="."]
 visible = false
