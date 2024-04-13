@@ -48,8 +48,9 @@ environment = SubResource("Environment_kvejx")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.965926, 0.25, -0.0669873, 9.02727e-17, 0.258819, 0.965926, 0.258819, -0.933013, 0.25, -0.75, 10, 2.5)
+transform = Transform3D(0.965926, 0.25, -0.0669873, 9.02727e-17, 0.258819, 0.965926, 0.258819, -0.933013, 0.25, -0.772434, 10.3235, 2.58372)
 projection = 1
+fov = 40.0
 size = 10.0
 far = 500.0
 
@@ -102,49 +103,12 @@ transform = Transform3D(0.75, 0, 0, 0, 0.075, 0, 0, 0, 0.75, 0, 0.0270113, 0)
 mesh = SubResource("BoxMesh_xnaa5")
 skeleton = NodePath("../../..")
 
-[node name="Rocket" type="MeshInstance3D" parent="Buildings/Launchpad"]
+[node name="Rocket" type="Node3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Rocket"]
 transform = Transform3D(0.256716, 0, 0, 0, 0.256716, 0, 0, 0, 0.256716, 0, 0.305468, 0)
 mesh = SubResource("CylinderMesh_lurw7")
-skeleton = NodePath("../../..")
-
-[node name="UI" type="CanvasLayer" parent="."]
-
-[node name="EnergyLabel" type="Label" parent="UI"]
-offset_left = 10.0
-offset_top = 710.0
-offset_right = 90.0
-offset_bottom = 733.0
-text = "Energy: 0"
-
-[node name="ScienceLabel" type="Label" parent="UI"]
-offset_left = 10.0
-offset_top = 740.0
-offset_right = 90.0
-offset_bottom = 763.0
-text = "Science: 0"
-
-[node name="ScienceRemainingLabel" type="Label" parent="UI"]
-offset_left = 10.0
-offset_top = 770.0
-offset_right = 248.0
-offset_bottom = 793.0
-text = "Science until rocket launch: 0"
-
-[node name="TooltipLabel" type="Label" parent="UI"]
-visible = false
-offset_left = 600.0
-offset_top = 400.0
-offset_right = 718.0
-offset_bottom = 423.0
-text = "-10 energy"
-
-[node name="WarningLabel" type="Label" parent="UI"]
-visible = false
-offset_right = 190.0
-offset_bottom = 40.0
-text = "Enemies approaching!"
-horizontal_alignment = 1
-vertical_alignment = 1
+skeleton = NodePath("../..")
 
 [node name="FogOfWar" type="CSGBox3D" parent="."]
 size = Vector3(2000, 2, 2000)
@@ -156,4 +120,55 @@ radius = 7.0
 height = 3.0
 smooth_faces = false
 
-[node name="Node" type="Node" parent="."]
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="EnergyLabel" type="Label" parent="HUD"]
+offset_left = 10.0
+offset_top = 710.0
+offset_right = 90.0
+offset_bottom = 733.0
+text = "Energy: 0"
+
+[node name="ScienceLabel" type="Label" parent="HUD"]
+offset_left = 10.0
+offset_top = 740.0
+offset_right = 90.0
+offset_bottom = 763.0
+text = "Science: 0"
+
+[node name="ScienceRemainingLabel" type="Label" parent="HUD"]
+offset_left = 10.0
+offset_top = 770.0
+offset_right = 248.0
+offset_bottom = 793.0
+text = "Science until rocket launch: 0"
+
+[node name="TooltipLabel" type="Label" parent="HUD"]
+visible = false
+offset_left = 600.0
+offset_top = 400.0
+offset_right = 718.0
+offset_bottom = 423.0
+text = "-10 energy"
+
+[node name="WarningLabel" type="Label" parent="HUD"]
+visible = false
+offset_right = 190.0
+offset_bottom = 40.0
+text = "Enemies approaching!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CinematicBars" type="CanvasLayer" parent="."]
+visible = false
+
+[node name="ColorRect" type="ColorRect" parent="CinematicBars"]
+offset_right = 1200.0
+offset_bottom = 120.0
+color = Color(0, 0, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="CinematicBars"]
+offset_top = 680.0
+offset_right = 1200.0
+offset_bottom = 800.0
+color = Color(0, 0, 0, 1)

@@ -6,6 +6,7 @@ const BUILDING_COMPLETION_DURATION := 10.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
 const CAMERA_SPEED := 6.0
 const TURRET_RADIUS := 6.0
+enum GameResult {WON, LOST}
 enum BuildingType {TURRET, WALL, MINE, LAB, INVALID}
 const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 50,
@@ -38,14 +39,17 @@ var player_ghost := preload("res://player_ghost.tres") as BaseMaterial3D
 @onready var launchpad := $Buildings/Launchpad as Node3D
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
-@onready var energy_label := $UI/EnergyLabel as Label
-@onready var science_label := $UI/ScienceLabel as Label
-@onready var science_remaining_label := $UI/ScienceRemainingLabel as Label
-@onready var tooltip_label := $UI/TooltipLabel as Label
-@onready var warning_label := $UI/WarningLabel as Control
+@onready var hud := $HUD as CanvasLayer
+@onready var energy_label := $HUD/EnergyLabel as Label
+@onready var science_label := $HUD/ScienceLabel as Label
+@onready var science_remaining_label := $HUD/ScienceRemainingLabel as Label
+@onready var tooltip_label := $HUD/TooltipLabel as Label
+@onready var warning_label := $HUD/WarningLabel as Control
+@onready var cinematic_bars := $CinematicBars as CanvasLayer
 @onready var camera := $Camera3D as Camera3D
 @onready var fog_of_war := $FogOfWar as Node3D
 @onready var launchpad_visibility_ring := $FogOfWar/VisibilityRing as Node3D
+@onready var rocket := $Rocket as Node3D
 var player_ghost_saturation_max := player_ghost.albedo_color.s
 var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
@@ -58,6 +62,8 @@ var science := 0
 var camera_offset := Vector3.ZERO
 var enemy_spawn_position := Vector3.ZERO
 var enemies_alive := 0
+var is_game_over := false
+var is_rocket_taking_off := false
 
 
 func _ready() -> void:
@@ -98,6 +104,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_game_over:
+		return
 	if event as InputEventKey:
 		var e := event as InputEventKey
 		if e.pressed:
@@ -127,6 +135,8 @@ func _on_ground_input_event(
 	_normal: Vector3,
 	_shape_idx: int
 ) -> void:
+	if is_game_over:
+		return
 	mouse_position_3d = Vector3(event_position.x, 0.0, event_position.z)
 	var grid_coord := Vector2i(
 		roundi(mouse_position_3d.x),
@@ -176,19 +186,11 @@ func _on_ground_input_event(
 func _process(delta: float) -> void:
 	process_tooltip()
 	process_ghost()
-	process_camera(delta)
+	process_camera_wasd(delta)
 	process_warning_label()
+	process_rocket(delta)
 	for enemy: Node3D in enemies.get_children():
-		if grid_to_building.is_empty():
-			continue
-		var grid_coord := get_nearest_completed_building(enemy.position)
-		var nearest_building: Node3D = grid_to_building[grid_coord]
-		enemy.look_at(nearest_building.position, Vector3.UP, true)
-		enemy.position += enemy.basis.z * delta * 1.0
-		if enemy.position.distance_to(nearest_building.position) < 1.0:
-			enemy.queue_free()
-			enemies_alive -= 1
-			erase_building(grid_coord)
+		process_enemy(enemy, delta)
 	for grid_coord: Vector2i in grid_to_building:
 		process_building(grid_coord, delta)
 
@@ -245,6 +247,8 @@ func start_enemy_spawn_loop() -> void:
 
 func start_energy_loop() -> void:
 	while true:
+		if is_game_over:
+			return
 		set_energy(energy + 1)
 		for grid_coord: Vector2i in grid_to_building:
 			if (
@@ -257,6 +261,8 @@ func start_energy_loop() -> void:
 
 func start_science_loop() -> void:
 	while true:
+		if is_game_over:
+			return
 		for grid_coord: Vector2i in grid_to_building:
 			if (
 				grid_to_building[grid_coord] is Lab
@@ -274,12 +280,15 @@ func set_energy(new_energy: int) -> void:
 func set_science(new_science: int) -> void:
 	science = new_science
 	science_label.text = "Science: %s" % science
-	science_remaining_label.text = (
-		"Science until rocket launch: %s" % maxi(0, 5000 - new_science)
-	)
+	var remaining := maxi(0, 5000 - new_science)
+	science_remaining_label.text = "Science until rocket launch: %s" % remaining
+	if remaining == 0:
+		play_game_over_sequence(GameResult.WON)
 
 
 func process_tooltip() -> void:
+	if is_game_over:
+		return
 	if can_place_building():
 		var building_cost: int = BUILDING_ENERGY_COST[building_type]
 		tooltip_label.text = "Build for -%s energy" % building_cost
@@ -292,6 +301,8 @@ func process_tooltip() -> void:
 
 
 func process_ghost() -> void:
+	if is_game_over:
+		return
 	ghost.position = Vector3(
 		roundi(mouse_position_3d.x),
 		0.0,
@@ -371,7 +382,9 @@ func get_sell_value() -> int:
 	return BUILDING_ENERGY_SELL_VALUE[building_under_mouse_type]
 
 
-func process_camera(delta: float) -> void:
+func process_camera_wasd(delta: float) -> void:
+	if is_game_over:
+		return
 	if Input.is_key_pressed(KEY_A):
 		camera.position -= camera.basis.x * delta * CAMERA_SPEED
 	if Input.is_key_pressed(KEY_D):
@@ -421,6 +434,8 @@ func random_enemy_spawn_position() -> Vector3:
 
 
 func process_warning_label() -> void:
+	if is_game_over:
+		return
 	warning_label.modulate.a = fmod(get_time(), 1.0)
 
 	var camera_focal_point := camera.position - camera_offset
@@ -447,11 +462,15 @@ func erase_building(grid_coord: Vector2i) -> void:
 	grid_to_building.erase(grid_coord)
 	grid_to_visibility_ring.erase(grid_coord)
 	grid_to_building_completion_proportion.erase(grid_coord)
+	if grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
+		rocket.queue_free()
+		play_game_over_sequence(GameResult.LOST)
 
 
 func hide_ghost_children() -> void:
 	for child: Node3D in ghost.get_children():
 		child.visible = false
+
 
 func process_building(grid_coord: Vector2i, delta: float) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
@@ -490,3 +509,40 @@ func process_building(grid_coord: Vector2i, delta: float) -> void:
 			enemies_alive -= 1
 			var gun := turret.find_child("Gun") as Node3D
 			gun.look_at(nearest_enemy.position, Vector3.UP, true)
+
+
+func process_rocket(delta: float) -> void:
+	if is_rocket_taking_off:
+		rocket.position.y += delta * (rocket.position.y + 1.0) / 10.0
+		camera.look_at(rocket.position)
+
+
+func process_enemy(enemy: Node3D, delta: float) -> void:
+	if grid_to_building.is_empty():
+		return
+	var grid_coord := get_nearest_completed_building(enemy.position)
+	var nearest_building: Node3D = grid_to_building[grid_coord]
+	enemy.look_at(nearest_building.position, Vector3.UP, true)
+	enemy.position += enemy.basis.z * delta * 1.0
+	if enemy.position.distance_to(nearest_building.position) < 1.0:
+		enemy.queue_free()
+		enemies_alive -= 1
+		erase_building(grid_coord)
+
+
+func play_game_over_sequence(game_result: GameResult) -> void:
+	var w := game_result == GameResult.WON
+	if w:
+		is_rocket_taking_off = true
+	is_game_over = true
+	hud.visible = false
+	cinematic_bars.visible = true
+	ghost.visible = false
+	camera.position = camera_offset
+	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
+	get_tree().create_timer(30.0 if w else 3.0).timeout.connect(func() -> void:
+		if w:
+			won.emit()
+		else:
+			lost.emit()
+	)

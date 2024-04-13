@@ -14,9 +14,7 @@ func _ready() -> void:
 
 
 func on_start_button_pressed() -> void:
-	var existing := get_child(0)
-	existing.queue_free()
-	await existing.tree_exited
+	await free_children()
 	var game := game_scene.instantiate() as Game
 	game.won.connect(on_won)
 	game.lost.connect(on_lost)
@@ -24,9 +22,6 @@ func on_start_button_pressed() -> void:
 
 
 func on_won() -> void:
-	var existing := get_child(0)
-	existing.queue_free()
-	await existing.tree_exited
 	var won := won_scene.instantiate()
 	var button := won.get_node("Button") as Button
 	button.pressed.connect(on_start_button_pressed)
@@ -34,13 +29,16 @@ func on_won() -> void:
 
 
 func on_lost() -> void:
-	var existing := get_child(0)
-	existing.queue_free()
-	await existing.tree_exited
 	var lost := lost_scene.instantiate()
 	var button := lost.get_node("Button") as Button
 	button.pressed.connect(on_start_button_pressed)
 	add_child(lost)
+
+
+func free_children() -> void:
+	for c in get_children():
+		c.queue_free()
+		await c.tree_exited
 
 
 func _unhandled_input(event: InputEvent) -> void:
