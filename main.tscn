@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=17 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://main.gd" id="1_jl7ro"]
 [ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="2_bgt2e"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://dljvff4hxe2vs" path="res://dotted_circle.png" id="3_af713"]
 [ext_resource type="PackedScene" uid="uid://b8etnikxj4lia" path="res://mine.tscn" id="3_hl6ib"]
 [ext_resource type="PackedScene" uid="uid://cdl15ju1voxhk" path="res://turret.tscn" id="4_xti8w"]
+[ext_resource type="PackedScene" uid="uid://b4f4fhfvuuexk" path="res://lab.tscn" id="6_ifdmr"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hfirg"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -86,6 +87,10 @@ visible = false
 [node name="Mine" parent="Ghost" instance=ExtResource("3_hl6ib")]
 visible = false
 
+[node name="Lab" parent="Ghost" instance=ExtResource("6_ifdmr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.08165e-12, 2.08165e-12)
+visible = false
+
 [node name="Enemies" type="Node" parent="."]
 
 [node name="Buildings" type="Node" parent="."]
@@ -106,10 +111,24 @@ skeleton = NodePath("../../..")
 
 [node name="EnergyLabel" type="Label" parent="UI"]
 offset_left = 10.0
-offset_top = 770.0
+offset_top = 710.0
 offset_right = 90.0
-offset_bottom = 793.0
+offset_bottom = 733.0
 text = "Energy: 0"
+
+[node name="ScienceLabel" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 740.0
+offset_right = 90.0
+offset_bottom = 763.0
+text = "Science: 0"
+
+[node name="ScienceRemainingLabel" type="Label" parent="UI"]
+offset_left = 10.0
+offset_top = 770.0
+offset_right = 248.0
+offset_bottom = 793.0
+text = "Science until rocket launch: 0"
 
 [node name="TooltipLabel" type="Label" parent="UI"]
 visible = false

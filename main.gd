@@ -3,19 +3,22 @@ class_name Main extends Node3D
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 20.0
 const CAMERA_SPEED := 7.0
 const TURRET_RADIUS := 6.0
-enum BuildingType {TURRET, WALL, MINE, INVALID}
+enum BuildingType {TURRET, WALL, MINE, LAB, INVALID}
 const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 10,
 	BuildingType.WALL: 2,
 	BuildingType.MINE: 10,
+	BuildingType.LAB: 10,
 }
 const BUILDING_ENERGY_SELL_VALUE = {
 	BuildingType.TURRET: 5,
 	BuildingType.WALL: 1,
 	BuildingType.MINE: 5,
+	BuildingType.LAB: 5,
 }
 var turret_scene := preload("res://turret.tscn")
 var wall_scene := preload("res://wall.tscn")
+var lab_scene := preload("res://lab.tscn")
 var enemy_scene := preload("res://enemy.tscn")
 var tracer_scene := preload("res://tracer.tscn")
 var uranium_scene := preload("res://uranium.tscn")
@@ -27,10 +30,13 @@ var player_transparent := preload("res://player_transparent.tres")
 @onready var ghost_turret_ring := $Ghost/Turret/Ring as Node3D
 @onready var ghost_wall := $Ghost/Wall as Node3D
 @onready var ghost_mine := $Ghost/Mine as Node3D
+@onready var ghost_lab := $Ghost/Lab as Node3D
 @onready var launchpad := $Buildings/Launchpad as Node3D
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
 @onready var energy_label := $UI/EnergyLabel as Label
+@onready var science_label := $UI/ScienceLabel as Label
+@onready var science_remaining_label := $UI/ScienceRemainingLabel as Label
 @onready var tooltip_label := $UI/TooltipLabel as Label
 @onready var warning_label := $UI/WarningLabel as Control
 @onready var camera := $Camera3D as Camera3D
@@ -42,11 +48,15 @@ var grid_to_building := {} # Dictionary[Vector2i, Node3D]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
 var energy := 30
+var science := 0
 var camera_offset := Vector3.ZERO
 var enemy_spawn_position := Vector3.ZERO
 
 
 func _ready() -> void:
+	set_science(science)
+	set_energy(energy)
+
 	camera_offset = camera.position
 	grid_to_building[Vector2i(0, 0)] = launchpad
 	ground.input_event.connect(_on_ground_input_event)
@@ -59,6 +69,7 @@ func _ready() -> void:
 
 	start_enemy_spawn_loop()
 	start_energy_loop()
+	start_science_loop()
 	for row in range(-1000, 1000):
 		for col in range(-1000, 1000):
 			if randf() < 0.03 and (row != 0 or col != 0):
@@ -94,6 +105,10 @@ func _unhandled_input(event: InputEvent) -> void:
 					building_type = BuildingType.MINE
 					hide_ghost_children()
 					ghost_mine.visible = true
+				KEY_4:
+					building_type = BuildingType.LAB
+					hide_ghost_children()
+					ghost_lab.visible = true
 				KEY_ESCAPE:
 					get_tree().quit()
 
@@ -120,6 +135,7 @@ func _on_ground_input_event(
 				var building_scene := (
 					turret_scene if building_type == BuildingType.TURRET
 					else wall_scene if building_type == BuildingType.WALL
+					else lab_scene if building_type == BuildingType.LAB
 					else mine_scene
 				)
 				var building := building_scene.instantiate() as Node3D
@@ -244,9 +260,25 @@ func start_energy_loop() -> void:
 		await get_tree().create_timer(1.0).timeout
 
 
+func start_science_loop() -> void:
+	while true:
+		for building in buildings.get_children():
+			if building is Lab:
+				set_science(science + 1)
+		await get_tree().create_timer(1.0).timeout
+
+
 func set_energy(new_energy: int) -> void:
 	energy = new_energy
 	energy_label.text = "Energy: %s" % energy
+
+
+func set_science(new_science: int) -> void:
+	science = new_science
+	science_label.text = "Science: %s" % science
+	science_remaining_label.text = (
+		"Science until rocket launch: %s" % maxi(0, 500 - new_science)
+	)
 
 
 func process_tooltip() -> void:
@@ -318,6 +350,7 @@ func get_sell_value() -> int:
 		BuildingType.TURRET if grid_to_building[grid_coord] is Turret
 		else BuildingType.WALL if grid_to_building[grid_coord] is Wall
 		else BuildingType.MINE if grid_to_building[grid_coord] is Mine
+		else BuildingType.LAB if grid_to_building[grid_coord] is Lab
 		else BuildingType.INVALID
 	)
 	assert(building_under_mouse_type != BuildingType.INVALID)
