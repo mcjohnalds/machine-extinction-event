@@ -112,6 +112,8 @@ func _on_ground_input_event(
 	)
 
 	if event.is_pressed():
+		# TODO: show a tooltip when the user can't place a building to explain
+		# why
 		if can_place_building():
 				var building_cost: int = BUILDING_ENERGY_COST[building_type]
 				set_energy(energy - building_cost)
@@ -211,7 +213,7 @@ func get_time() -> float:
 
 func start_enemy_spawn_loop() -> void:
 	await get_tree().create_timer(3.0).timeout
-	var enemies_per_wave := 1.0
+	var enemies_per_wave := 3.0
 	while true:
 		enemy_spawn_position = random_enemy_spawn_position()
 
@@ -274,6 +276,15 @@ func can_place_building() -> bool:
 		roundi(mouse_position_3d.z)
 	)
 	var building_cost: int = BUILDING_ENERGY_COST[building_type]
+	var has_nearby_building := false
+	for row: int in [-1, 0, 1]:
+		for col: int in [-1, 0, 1]:
+			if row == 0 and col == 0:
+				continue
+			var c := grid_coord + Vector2i(row, col)
+			if c in grid_to_building:
+				has_nearby_building = true
+				break
 	return (
 		(
 			building_type == BuildingType.MINE and grid_coord in grid_to_uranium
@@ -284,6 +295,7 @@ func can_place_building() -> bool:
 			)
 		)
 		and energy >= building_cost
+		and has_nearby_building
 	)
 
 
