@@ -116,13 +116,6 @@ offset_right = 90.0
 offset_bottom = 733.0
 text = "Energy: 0"
 
-[node name="EnemiesLabel" type="Label" parent="UI"]
-offset_left = 10.0
-offset_top = 680.0
-offset_right = 90.0
-offset_bottom = 703.0
-text = "Enemies alive: 0"
-
 [node name="ScienceLabel" type="Label" parent="UI"]
 offset_left = 10.0
 offset_top = 740.0

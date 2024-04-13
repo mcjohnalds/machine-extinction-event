@@ -35,7 +35,6 @@ var player_transparent := preload("res://player_transparent.tres")
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
 @onready var energy_label := $UI/EnergyLabel as Label
-@onready var enemies_label := $UI/EnemiesLabel as Label
 @onready var science_label := $UI/ScienceLabel as Label
 @onready var science_remaining_label := $UI/ScienceRemainingLabel as Label
 @onready var tooltip_label := $UI/TooltipLabel as Label
@@ -58,7 +57,6 @@ var enemies_alive := 0
 func _ready() -> void:
 	set_science(science)
 	set_energy(energy)
-	set_enemies_alive(enemies_alive)
 
 	camera_offset = camera.position
 	grid_to_building[Vector2i(0, 0)] = launchpad
@@ -175,7 +173,7 @@ func _process(delta: float) -> void:
 		enemy.position += enemy.basis.z * delta * 1.0
 		if enemy.position.distance_to(nearest_building.position) < 1.0:
 			enemy.queue_free()
-			set_enemies_alive(enemies_alive - 1)
+			enemies_alive -= 1
 			erase_building(grid_coord)
 	for grid_coord: Vector2i in grid_to_building:
 		var building: Node3D = grid_to_building[grid_coord]
@@ -201,7 +199,7 @@ func _process(delta: float) -> void:
 				turret.last_fired_at = get_time()
 				add_tracer(turret, nearest_enemy)
 				nearest_enemy.queue_free()
-				set_enemies_alive(enemies_alive - 1)
+				enemies_alive -= 1
 				var gun := turret.find_child("Gun") as Node3D
 				gun.look_at(nearest_enemy.position, Vector3.UP, true)
 
@@ -251,7 +249,7 @@ func start_enemy_spawn_loop() -> void:
 				enemy_spawn_position.z + randf_range(-3.0, 3.0),
 			)
 			enemies.add_child(enemy)
-			set_enemies_alive(enemies_alive + 1)
+			enemies_alive += 1
 		enemies_per_wave = enemies_per_wave * 1.2 + 1.0
 
 		await get_tree().create_timer(60.0).timeout
@@ -277,11 +275,6 @@ func start_science_loop() -> void:
 func set_energy(new_energy: int) -> void:
 	energy = new_energy
 	energy_label.text = "Energy: %s" % energy
-
-
-func set_enemies_alive(new_enemies_alive: int) -> void:
-	enemies_alive = new_enemies_alive
-	enemies_label.text = "Enemies alive: %s" % enemies_alive
 
 
 func set_science(new_science: int) -> void:
