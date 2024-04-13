@@ -5,7 +5,7 @@ signal lost
 const BUILDING_COMPLETION_DURATION := 10.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
 const CAMERA_SPEED := 6.0
-const TURRET_RADIUS := 6.0
+const TURRET_RADIUS := 5.0
 enum GameResult {WON, LOST}
 enum BuildingType {TURRET, WALL, MINE, LAB, INVALID}
 const BUILDING_ENERGY_COST = {
@@ -77,23 +77,15 @@ func _ready() -> void:
 
 	ghost_turret_ring.scale.x = TURRET_RADIUS * 2.0
 	ghost_turret_ring.scale.z = TURRET_RADIUS * 2.0
-	var ghost_meshes := ghost.find_children("*", "MeshInstance3D", true, false)
-	for mesh: MeshInstance3D in ghost_meshes:
+	for mesh: MeshInstance3D in (
+		ghost.find_children("*", "MeshInstance3D", true, false)
+	):
 		mesh.material_override = player_ghost
 
 	start_enemy_spawn_loop()
 	start_energy_loop()
 	start_science_loop()
-	# TODO: this loop runs 30k times and it slows game startup and probably eats
-	# lots of memory or something. deal with it
-	for row in range(-1000, 1000):
-		for col in range(-1000, 1000):
-			if randf() < 0.03 and (row != 0 or col != 0):
-				var uranium := uranium_scene.instantiate() as Node3D
-				uranium.position.x = row
-				uranium.position.z = col
-				add_child(uranium)
-				grid_to_uranium[Vector2i(row, col)] = uranium
+	spawn_all_uranium()
 
 
 func _input(event: InputEvent) -> void:
@@ -438,6 +430,8 @@ func process_warning_label() -> void:
 		return
 	warning_label.modulate.a = fmod(get_time(), 1.0)
 
+	# TODO: this calculation is a terrible approximation. For better results, I
+	# should convert the enemy spawn pos to view space
 	var camera_focal_point := camera.position - camera_offset
 	var dir := camera_focal_point.direction_to(enemy_spawn_position)
 	var viewport_center := get_viewport().get_visible_rect().get_center()
@@ -546,3 +540,32 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 		else:
 			lost.emit()
 	)
+
+
+func add_uranium(grid_coord: Vector2i) -> void:
+	var uranium := uranium_scene.instantiate() as Node3D
+	uranium.position.x = grid_coord.x
+	uranium.position.z = grid_coord.y
+	add_child(uranium)
+	grid_to_uranium[grid_coord] = uranium
+
+
+func spawn_all_uranium() -> void:
+	var next_to_launchpad: Vector2i = [
+		Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)
+	].pick_random()
+	add_uranium(next_to_launchpad)
+	for i in 3:
+		var arr: Array[int] = [-5, -4, -3, -2, 2, 3, 4, 5]
+		var row: int = arr.pick_random()
+		var col: int = arr.pick_random()
+		add_uranium(Vector2i(row, col))
+	# TODO: this loop runs 30k times and it slows game startup and probably eats
+	# lots of memory or something. deal with it
+	for row in range(-1000, 1000):
+		for col in range(-1000, 1000):
+			var close_to_launchpad := (
+				row > -7 and row < 7 and col > -7 and col < 7
+			)
+			if randf() < 0.03 and not close_to_launchpad:
+				add_uranium(Vector2i(row, col))
