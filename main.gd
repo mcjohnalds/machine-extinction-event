@@ -309,14 +309,15 @@ func can_place_building() -> bool:
 	)
 	var building_cost: int = BUILDING_ENERGY_COST[building_type]
 	var has_nearby_building := false
-	for row: int in [-1, 0, 1]:
-		for col: int in [-1, 0, 1]:
-			if row == 0 and col == 0:
-				continue
-			var c := grid_coord + Vector2i(row, col)
-			if c in grid_to_building:
-				has_nearby_building = true
-				break
+	for c: Vector2i in [
+		Vector2i(-1, 0),
+		Vector2i(1, 0),
+		Vector2i(0, -1),
+		Vector2i(0, 1)
+	]:
+		if c + grid_coord in grid_to_building:
+			has_nearby_building = true
+			break
 	return (
 		(
 			building_type == BuildingType.MINE and grid_coord in grid_to_uranium
