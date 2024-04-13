@@ -188,6 +188,7 @@ offset_bottom = 400.0
 text = "Lab"
 
 [node name="Tooltip" type="Control" parent="HUD"]
+visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = 600.0

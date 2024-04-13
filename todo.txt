@@ -1,1 +1,80 @@
-make this intro sound like this https://www.youtube.com/watch?v=ATjwFQntE_Q
+Adjust game balance.
+
+Add tutorial.
+
+Make warning label sit within game window.
+
+Upload to itch.io.
+
+Add launchpad asset.
+
+Add rocket asset.
+
+Add turret asset.
+
+Add wall asset.
+
+Add mine asset.
+
+Add lab asset.
+
+Add enemy asset.
+
+Add uranium asset.
+
+Add ground texture.
+
+Add turret shoot sound effect.
+
+Add building placed sound effect.
+
+Add building completed sound effect.
+
+Add building destroyed sound effect.
+
+Add rocket takeoff sound effect.
+
+Add launchpad destroyed sound effect.
+
+Add warning sound effect.
+
+Add start music. Make this intro sound like this
+https://www.youtube.com/watch?v=ATjwFQntE_Q
+
+Add game music.
+
+Add win music.
+
+Add lose music.
+
+Add building explosion effect.
+
+Add rocket explosion effect.
+
+Add rocket takeoff effect.
+
+Add enemy killed effect.
+
+Add building destroyed effect.
+
+Add building construction effect.
+
+Improve turret shoot effect.
+
+[Breakdown] Make UI pretty.
+
+Make loading screen/intro sequence interesting. Maybe display rocket with
+launchpad in starting position.
+
+[Breakdown] Add UI sound effects.
+
+Make ground pretty.
+
+Make fog of war pretty.
+
+Fix slow CSGs.
+
+Warning label position calculation is innacurate. I should convert the enemy
+spawn position to view space then screen space for best results.
+
+Fix slow game scene load.

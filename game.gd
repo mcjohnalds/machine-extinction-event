@@ -117,6 +117,9 @@ func _input(event: InputEvent) -> void:
 		var e := event as InputEventMouseMotion
 		tooltip.position.x = e.position.x
 		tooltip.position.y = e.position.y
+		# Don't show tooltip until now because we don't want it to appear at a
+		# weird location
+		tooltip.visible = true
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -152,8 +155,6 @@ func _on_ground_input_event(
 	)
 
 	if event.is_pressed():
-		# TODO: show a tooltip when the user can't place a building to explain
-		# why
 		if can_place_building():
 			var building_cost: int = BUILDING_ENERGY_COST[building_type]
 			set_energy(energy - building_cost)
@@ -296,7 +297,6 @@ func set_science(new_science: int) -> void:
 func process_tooltip() -> void:
 	if is_game_over:
 		return
-	tooltip.visible = true
 	if can_place_building():
 		var building_cost: int = BUILDING_ENERGY_COST[building_type]
 		tooltip_label.text = "✓ Build for -%s energy" % building_cost
@@ -449,8 +449,6 @@ func process_warning_label() -> void:
 		return
 	warning_label.modulate.a = fmod(get_time(), 1.0)
 
-	# TODO: this calculation is a terrible approximation. For better results, I
-	# should convert the enemy spawn pos to view space
 	var camera_focal_point := camera.position - camera_offset
 	var dir := camera_focal_point.direction_to(enemy_spawn_position)
 	var viewport_center := get_viewport().get_visible_rect().get_center()
@@ -581,8 +579,6 @@ func spawn_all_uranium() -> void:
 		var row: int = arr.pick_random()
 		var col: int = arr.pick_random()
 		add_uranium(Vector2i(row, col))
-	# TODO: this loop runs 30k times and it slows game startup and probably eats
-	# lots of memory or something. deal with it
 	for row in range(-1000, 1000):
 		for col in range(-1000, 1000):
 			var close_to_launchpad := (
