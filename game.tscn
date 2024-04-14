@@ -1,7 +1,8 @@
-[gd_scene load_steps=17 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=18 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_a4s7c"]
 [ext_resource type="PackedScene" uid="uid://cdl15ju1voxhk" path="res://turret.tscn" id="2_i6sex"]
+[ext_resource type="Texture2D" uid="uid://b1b76jq4rrpmv" path="res://concrete.png" id="3_5vqge"]
 [ext_resource type="Texture2D" uid="uid://dljvff4hxe2vs" path="res://dotted_circle.png" id="3_x8fnx"]
 [ext_resource type="PackedScene" uid="uid://7cjndxgwsyn7" path="res://wall.tscn" id="4_p5wlr"]
 [ext_resource type="PackedScene" uid="uid://b8etnikxj4lia" path="res://mine.tscn" id="5_6o3kb"]
@@ -24,7 +25,10 @@ tonemap_mode = 2
 [sub_resource type="PlaneMesh" id="PlaneMesh_r4355"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h7dw4"]
+shading_mode = 0
 albedo_color = Color(0.556863, 0.556863, 0.556863, 1)
+albedo_texture = ExtResource("3_5vqge")
+uv1_scale = Vector3(90, 100, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_ayy8k"]
 size = Vector3(2000, 1, 2000)
@@ -46,7 +50,8 @@ environment = SubResource("Environment_kvejx")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.707107, 0.683013, -0.183013, 9.02727e-17, 0.258819, 0.965926, 0.707107, -0.683013, 0.183013, -2.492, 12.013, 2.584)
+transform = Transform3D(0.707107, 0.683013, -0.183013, 9.02727e-17, 0.258819, 0.965926, 0.707107, -0.683013, 0.183013, -2.322, 12.013, 2.584)
+projection = 1
 fov = 40.0
 size = 10.0
 far = 500.0
