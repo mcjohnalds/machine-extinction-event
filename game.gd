@@ -57,6 +57,7 @@ var blank_cursor := preload("res://blank_cursor.png")
 @onready var energy_delta_label := $HUD/EnergyDeltaLabel as Label
 @onready var science_label := $HUD/ScienceLabel as Label
 @onready var science_required_label := $HUD/ScienceRequiredLabel as Label
+@onready var science_delta_label := $HUD/ScienceDeltaLabel as Label
 @onready var tooltip := $HUD/Tooltip as Control
 @onready var tooltip_label := $HUD/Tooltip/Label as Label
 @onready var warning_label := $HUD/WarningLabel as Control
@@ -205,6 +206,7 @@ func _process(delta: float) -> void:
 	process_warning_label()
 	process_rocket(delta)
 	energy_delta_label.text = "%+d energy" % get_energy_gain()
+	science_delta_label.text = "%+d science" % get_science_gain()
 	for enemy: Node3D in enemies.get_children():
 		process_enemy(enemy, delta)
 	for grid_coord: Vector2i in grid_to_building:
@@ -289,13 +291,19 @@ func start_science_loop() -> void:
 	while true:
 		if is_game_over:
 			return
-		for grid_coord: Vector2i in grid_to_building:
-			if (
-				grid_to_building[grid_coord] is Lab
-				and grid_to_building_completion_proportion[grid_coord] == 1.0
-			):
-				set_science(science + SCINECE_GAIN_PER_LAB)
+		set_science(science + get_science_gain())
 		await get_tree().create_timer(1.0).timeout
+
+
+func get_science_gain() -> int:
+	var gain := 0
+	for grid_coord: Vector2i in grid_to_building:
+		if (
+			grid_to_building[grid_coord] is Lab
+			and grid_to_building_completion_proportion[grid_coord] == 1.0
+		):
+			gain += 1
+	return gain
 
 
 func set_energy(new_energy: int) -> void:
