@@ -1,4 +1,4 @@
-Add tutorial.
+Disable features until tutorial completion.
 
 Make warning label sit within game window.
 
@@ -77,4 +77,10 @@ spawn position to view space then screen space for best results.
 
 Fix slow game scene load.
 
-Make enemies destroy incomplete buildings.
+[Unsorted] Make enemies destroy incomplete buildings.
+
+[Unsorted] Don't force player to go through tutorial again on restart.
+
+[Unsorted] Add restart button to game.
+
+[Unsorted] Add pause button.

@@ -16,13 +16,34 @@ const GHOST_VALID := Color("5d8fba7f")
 const GHOST_INVALID := Color("37546e3e")
 enum GameResult {WON, LOST}
 enum BuildingType {TURRET, WALL, MINE, LAB}
-const BUILDING_ENERGY_COST = {
+enum TutorialStep {START, TURRET, WALL, ENERGY, MINE, SCIENCE, LAB, END}
+const TUTORIAL_TEXT_FOR_STEP := {
+	TutorialStep.START: "",
+	TutorialStep.TURRET: "Build a turret to defend your base",
+	TutorialStep.WALL: "Build a wall to defend your base",
+	TutorialStep.ENERGY: "Be mindful of your energy",
+	TutorialStep.MINE: "Build a uranium mine to gain energy",
+	TutorialStep.SCIENCE: "Gain enough science to escape earth",
+	TutorialStep.LAB: "Build a lab to gain science",
+	TutorialStep.END: ""
+}
+const TUTORIAL_POPUP_Y_FOR_STEP := {
+	TutorialStep.START: 0,
+	TutorialStep.TURRET: 6,
+	TutorialStep.WALL: 106,
+	TutorialStep.ENERGY: 433,
+	TutorialStep.MINE: 206,
+	TutorialStep.SCIENCE: 693,
+	TutorialStep.LAB: 306,
+	TutorialStep.END: 0
+}
+const BUILDING_ENERGY_COST := {
 	BuildingType.TURRET: 50,
 	BuildingType.WALL: 10,
 	BuildingType.MINE: 50,
 	BuildingType.LAB: 100,
 }
-const BUILDING_ENERGY_SELL_VALUE = {
+const BUILDING_ENERGY_SELL_VALUE := {
 	BuildingType.TURRET: 25,
 	BuildingType.WALL: 5,
 	BuildingType.MINE: 25,
@@ -61,18 +82,23 @@ var blank_cursor := preload("res://blank_cursor.png")
 @onready var tooltip := $HUD/Tooltip as Control
 @onready var tooltip_label := $HUD/Tooltip/Label as Label
 @onready var warning_label := $HUD/WarningLabel as Control
+@onready var tutorial_popup := $HUD/TutorialPopup as Control
+@onready var tutorial_popup_label := $HUD/TutorialPopup/Label as Label
+@onready var tutorial_popup_button := $HUD/TutorialPopup/Button as Button
 @onready var cinematic_bars := $CinematicBars as CanvasLayer
 @onready var camera := $Camera3D as Camera3D
 @onready var fog_of_war := $FogOfWar as Node3D
 @onready var launchpad_visibility_ring := $FogOfWar/VisibilityRing as Node3D
 @onready var rocket := $Rocket as Node3D
+var tutorial_step := TutorialStep.START
 var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
+var no_building_type_selected := true
 var grid_to_building := {} # Dictionary[Vector2i, Node3D]
 var grid_to_building_completion_proportion := {} # Dictionary[Vector2i, float]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
-var energy := 100
+var energy := 150
 var science := 0
 var camera_offset := Vector3.ZERO
 var enemy_spawn_position := Vector3.ZERO
@@ -117,6 +143,17 @@ func _ready() -> void:
 	start_energy_loop()
 	start_science_loop()
 	spawn_all_uranium()
+
+	tutorial_popup_button.pressed.connect(func() -> void:
+		tutorial_popup.visible = false
+		if (
+			tutorial_step == TutorialStep.ENERGY
+			or tutorial_step == TutorialStep.SCIENCE
+		):
+			await get_tree().create_timer(3.0).timeout
+			go_to_next_tutorial_step()
+	)
+	go_to_next_tutorial_step()
 
 
 func _input(event: InputEvent) -> void:
@@ -188,13 +225,26 @@ func _on_ground_input_event(
 				mesh.material_override = player_transparent
 			buildings.add_child(building)
 
-			if building_type == BuildingType.TURRET:
-				var visibility_ring := (
-					launchpad_visibility_ring.duplicate() as Node3D
-				)
-				visibility_ring.position = building.position
-				fog_of_war.add_child(visibility_ring)
-				grid_to_visibility_ring[grid_coord] = visibility_ring
+			match building_type:
+				BuildingType.TURRET:
+					var visibility_ring := (
+						launchpad_visibility_ring.duplicate() as Node3D
+					)
+					visibility_ring.position = building.position
+					fog_of_war.add_child(visibility_ring)
+					grid_to_visibility_ring[grid_coord] = visibility_ring
+					
+					if tutorial_step == TutorialStep.TURRET:
+						go_to_next_tutorial_step()
+				BuildingType.WALL:
+					if tutorial_step == TutorialStep.WALL:
+						go_to_next_tutorial_step()
+				BuildingType.MINE:
+					if tutorial_step == TutorialStep.MINE:
+						go_to_next_tutorial_step()
+				BuildingType.LAB:
+					if tutorial_step == TutorialStep.LAB:
+						go_to_next_tutorial_step()
 		elif can_sell_building():
 				set_energy(energy + get_sell_value())
 				erase_building(grid_coord)
@@ -323,7 +373,9 @@ func set_science(new_science: int) -> void:
 func process_tooltip() -> void:
 	if is_game_over:
 		return
-	if can_place_building():
+	if no_building_type_selected:
+		tooltip_label.text = ""
+	elif can_place_building():
 		var building_cost: int = BUILDING_ENERGY_COST[building_type]
 		tooltip_label.text = "✓ Build for -%s energy" % building_cost
 		if building_type == BuildingType.TURRET:
@@ -389,6 +441,9 @@ func get_invalid_building_placement_reason() -> String:
 		return "can only place building near another building"
 	if grid_coord in grid_to_building:
 		return "can't place building on top of another building"
+	if no_building_type_selected:
+		return "select building"
+	# Placement must be valid
 	return ""
 
 
@@ -426,18 +481,18 @@ func get_sell_value() -> int:
 func process_camera_wasd(delta: float) -> void:
 	if is_game_over:
 		return
-	if Input.is_key_pressed(KEY_A):
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
 		camera.position -= camera.basis.x * delta * CAMERA_SPEED
-	if Input.is_key_pressed(KEY_D):
+	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
 		camera.position += camera.basis.x * delta * CAMERA_SPEED
 	var up_direction := -Vector3(
 		camera.basis.z.x,
 		0,
 		camera.basis.z.z
 	).normalized()
-	if Input.is_key_pressed(KEY_W):
+	if Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP):
 		camera.position += up_direction * delta * CAMERA_SPEED
-	if Input.is_key_pressed(KEY_S):
+	if Input.is_key_pressed(KEY_S) or Input.is_key_pressed(KEY_DOWN):
 		camera.position -= up_direction * delta * CAMERA_SPEED
 
 
@@ -625,6 +680,8 @@ func spawn_all_uranium() -> void:
 
 
 func select_building_type(t: BuildingType) -> void:
+	ghost.visible = true
+	no_building_type_selected = false
 	building_type = t
 	hide_ghost_children()
 	turret_button.disabled = false
@@ -644,3 +701,50 @@ func select_building_type(t: BuildingType) -> void:
 		BuildingType.LAB:
 			ghost_lab.visible = true
 			lab_button.disabled = true
+
+
+func go_to_next_tutorial_step() -> void:
+	tutorial_popup.visible = false
+	await get_tree().create_timer(2.0).timeout
+	tutorial_step = mini(tutorial_step + 1, TutorialStep.END) as TutorialStep
+	if tutorial_step == TutorialStep.END:
+		return
+
+	# Can happen if the player builds things in an order that does not match the
+	# tutorial build order
+	if (
+		(
+			tutorial_step == TutorialStep.TURRET
+			and building_exists(BuildingType.TURRET)
+		)
+		or (
+			tutorial_step == TutorialStep.WALL
+			and building_exists(BuildingType.WALL)
+		)
+		or (
+			tutorial_step == TutorialStep.MINE
+			and building_exists(BuildingType.MINE)
+		)
+		or (
+			tutorial_step == TutorialStep.LAB
+			and building_exists(BuildingType.LAB)
+		)
+	):
+		go_to_next_tutorial_step()
+		return
+
+	tutorial_popup_label.text = TUTORIAL_TEXT_FOR_STEP[tutorial_step]
+	tutorial_popup.position.y = TUTORIAL_POPUP_Y_FOR_STEP[tutorial_step]
+	tutorial_popup.visible = true
+
+
+func building_exists(t: BuildingType) -> bool:
+	for b in buildings.get_children():
+		if (
+			b is Turret and t == BuildingType.TURRET
+			or b is Wall and t == BuildingType.WALL
+			or b is Mine and t == BuildingType.MINE
+			or b is Lab and t == BuildingType.LAB
+		):
+			return true
+	return false

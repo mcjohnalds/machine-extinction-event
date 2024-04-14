@@ -68,6 +68,7 @@ shape = SubResource("BoxShape3D_ayy8k")
 
 [node name="Ghost" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+visible = false
 
 [node name="Turret" type="Node3D" parent="Ghost"]
 
@@ -199,7 +200,6 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 110.0
 offset_bottom = 100.0
-disabled = true
 text = "Turret"
 
 [node name="WallButton" type="Button" parent="HUD"]
@@ -223,6 +223,77 @@ offset_right = 110.0
 offset_bottom = 400.0
 text = "Lab"
 
+[node name="TurretShortcut" type="Label" parent="HUD"]
+offset_left = 36.0
+offset_top = 80.0
+offset_right = 136.0
+offset_bottom = 110.0
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 13
+text = "Shortcut: 1"
+autowrap_mode = 3
+
+[node name="WallShortcut" type="Label" parent="HUD"]
+offset_left = 36.0
+offset_top = 180.0
+offset_right = 136.0
+offset_bottom = 210.0
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 13
+text = "Shortcut: 2"
+autowrap_mode = 3
+
+[node name="MineShortcut" type="Label" parent="HUD"]
+offset_left = 36.0
+offset_top = 280.0
+offset_right = 136.0
+offset_bottom = 310.0
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 13
+text = "Shortcut: 3"
+autowrap_mode = 3
+
+[node name="LabShortcut" type="Label" parent="HUD"]
+offset_left = 36.0
+offset_top = 380.0
+offset_right = 136.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 13
+text = "Shortcut: 4"
+autowrap_mode = 3
+
+[node name="TutorialPopup" type="ColorRect" parent="HUD"]
+visible = false
+offset_left = 140.0
+offset_top = 6.0
+offset_right = 390.0
+offset_bottom = 106.0
+
+[node name="Label" type="Label" parent="HUD/TutorialPopup"]
+layout_mode = 0
+offset_left = 10.0
+offset_top = 10.0
+offset_right = 240.0
+offset_bottom = 90.0
+text = "Tutorial text"
+autowrap_mode = 3
+
+[node name="Polygon2D" type="Polygon2D" parent="HUD/TutorialPopup"]
+polygon = PackedVector2Array(0, 100, -20, 50, 0, 0)
+
+[node name="Button" type="Button" parent="HUD/TutorialPopup"]
+layout_mode = 0
+offset_left = 210.0
+offset_top = 60.0
+offset_right = 241.0
+offset_bottom = 91.0
+text = "Ok"
+
 [node name="Tooltip" type="Control" parent="HUD"]
 visible = false
 layout_mode = 3
@@ -234,6 +305,7 @@ offset_bottom = 440.0
 mouse_filter = 2
 
 [node name="Label" type="Label" parent="HUD/Tooltip"]
+layout_mode = 0
 offset_left = 20.0
 offset_top = -6.0
 offset_right = 138.0
