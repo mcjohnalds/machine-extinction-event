@@ -1,5 +1,3 @@
-Check to make sure that win scene isn't being added multiple times.
-
 Add tutorial.
 
 Make warning label sit within game window.
