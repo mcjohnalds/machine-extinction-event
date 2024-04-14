@@ -188,12 +188,13 @@ func _on_ground_input_event(
 				mesh.material_override = player_transparent
 			buildings.add_child(building)
 
-			var visibility_ring := (
-				launchpad_visibility_ring.duplicate() as Node3D
-			)
-			visibility_ring.position = building.position
-			fog_of_war.add_child(visibility_ring)
-			grid_to_visibility_ring[grid_coord] = visibility_ring
+			if building_type == BuildingType.TURRET:
+				var visibility_ring := (
+					launchpad_visibility_ring.duplicate() as Node3D
+				)
+				visibility_ring.position = building.position
+				fog_of_war.add_child(visibility_ring)
+				grid_to_visibility_ring[grid_coord] = visibility_ring
 		elif can_sell_building():
 				set_energy(energy + get_sell_value())
 				erase_building(grid_coord)
@@ -500,8 +501,14 @@ func erase_building(grid_coord: Vector2i) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
 	building.queue_free()
 	grid_to_building.erase(grid_coord)
-	grid_to_visibility_ring.erase(grid_coord)
+
+	if grid_coord in grid_to_visibility_ring:
+		var visibility_ring: Node3D = grid_to_visibility_ring[grid_coord]
+		visibility_ring.queue_free()
+		grid_to_visibility_ring.erase(grid_coord)
+
 	grid_to_building_completion_proportion.erase(grid_coord)
+
 	if grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
 		rocket.queue_free()
 		play_game_over_sequence(GameResult.LOST)

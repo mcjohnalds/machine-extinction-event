@@ -1,5 +1,3 @@
-Make FOW only appear on turrets.
-
 Check to make sure that win scene isn't being added multiple times.
 
 Add tutorial.
