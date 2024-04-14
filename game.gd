@@ -379,15 +379,15 @@ func process_tooltip() -> void:
 		tooltip_label.text = ""
 	elif can_place_building():
 		var building_cost: int = BUILDING_ENERGY_COST[building_type]
-		tooltip_label.text = "✓ Build for -%s energy" % building_cost
+		tooltip_label.text = "Build for -%s energy" % building_cost
 		if building_type == BuildingType.TURRET:
 			tooltip_label.text += (
 				"\nDrains -%s energy per second" % TURRET_DRAIN_PER_SECOND
 			)
 	elif can_sell_building():
-		tooltip_label.text = "✓ Sell for +%s energy" % get_sell_value()
+		tooltip_label.text = "Sell for +%s energy" % get_sell_value()
 	else:
-		tooltip_label.text = "✖ %s" % get_invalid_building_placement_reason()
+		tooltip_label.text = "%s" % get_invalid_building_placement_reason()
 
 
 func process_ghost() -> void:
@@ -542,14 +542,17 @@ func process_warning_label() -> void:
 	warning_label.position = viewport_center + 10000.0 * Vector2(dir.x, dir.z)
 	var viewport_size := get_viewport().get_visible_rect().size
 	if warning_label.position.x < 0.0:
-		# GUI sits on left of screen so don't want to overlap it
-		warning_label.position.x = hud_background.size.x
+		warning_label.position.x = 0.0
 	if warning_label.position.x + warning_label.size.x > viewport_size.x:
 		warning_label.position.x = viewport_size.x - warning_label.size.x
 	if warning_label.position.y < 0.0:
 		warning_label.position.y = 0.0
 	if warning_label.position.y > viewport_size.y:
 		warning_label.position.y = viewport_size.y - warning_label.size.y
+	# GUI sits on left of screen so don't want to overlap it
+	warning_label.position.x = maxf(
+		hud_background.size.x, warning_label.position.x
+	)
 
 	if enemies_alive == 0:
 		warning_label.visible = false

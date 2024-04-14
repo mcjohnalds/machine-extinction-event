@@ -295,7 +295,6 @@ offset_bottom = 91.0
 text = "Ok"
 
 [node name="Tooltip" type="Control" parent="HUD"]
-visible = false
 layout_mode = 3
 anchors_preset = 0
 offset_left = 600.0
@@ -307,9 +306,8 @@ mouse_filter = 2
 [node name="Label" type="Label" parent="HUD/Tooltip"]
 layout_mode = 0
 offset_left = 20.0
-offset_top = -6.0
 offset_right = 138.0
-offset_bottom = 17.0
+offset_bottom = 23.0
 text = "-10 energy"
 
 [node name="CinematicBars" type="CanvasLayer" parent="."]

@@ -1,5 +1,3 @@
-Upload to itch.io.
-
 Add launchpad asset.
 
 Add rocket asset.
@@ -82,3 +80,9 @@ Fix slow game scene load.
 [Unsorted] Add pause button.
 
 [Unsorted] Disable features until tutorial completion.
+
+[Unsorted] Fill out itch.io page
+
+[Unsorted] Run in fullscreen
+
+[Unsorted] Show tick and cross in tooltip
