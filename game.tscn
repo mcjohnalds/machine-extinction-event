@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=17 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_a4s7c"]
 [ext_resource type="PackedScene" uid="uid://cdl15ju1voxhk" path="res://turret.tscn" id="2_i6sex"]
@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b8etnikxj4lia" path="res://mine.tscn" id="5_6o3kb"]
 [ext_resource type="PackedScene" uid="uid://b4f4fhfvuuexk" path="res://lab.tscn" id="6_o3p7i"]
 [ext_resource type="PackedScene" uid="uid://gon32otradow" path="res://launchpad.tscn" id="7_0d0ja"]
-[ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="7_1b645"]
+[ext_resource type="PackedScene" uid="uid://dg70iflasqw5v" path="res://space_shuttle.tscn" id="9_2qjoc"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hfirg"]
 sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
@@ -33,9 +33,6 @@ uv1_scale = Vector3(90, 100, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_ayy8k"]
 size = Vector3(2000, 1, 2000)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_lurw7"]
-material = ExtResource("7_1b645")
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3omxf"]
 shading_mode = 0
 albedo_color = Color(0.172549, 0.172549, 0.172549, 1)
@@ -50,7 +47,7 @@ environment = SubResource("Environment_kvejx")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.707107, 0.683013, -0.183013, 9.02727e-17, 0.258819, 0.965926, 0.707107, -0.683013, 0.183013, -2.322, 12.013, 2.584)
+transform = Transform3D(0.707107, 0.612372, -0.353553, 1.74393e-16, 0.5, 0.866025, 0.707107, -0.612372, 0.353553, -2.322, 5.583, 2.584)
 projection = 1
 fov = 40.0
 size = 10.0
@@ -107,10 +104,8 @@ transform = Transform3D(-1.52271e-08, 0, 0.348355, 0, 0.348355, 0, -0.348355, 0,
 
 [node name="Rocket" type="Node3D" parent="."]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Rocket"]
-transform = Transform3D(0.256716, 0, 0, 0, 0.370406, 0, 0, 0, 0.256716, -0.119003, 0.662, 2.08165e-12)
-mesh = SubResource("CylinderMesh_lurw7")
-skeleton = NodePath("../..")
+[node name="space_shuttle" parent="Rocket" instance=ExtResource("9_2qjoc")]
+transform = Transform3D(0.256716, 0, 0, 0, 0.370406, 0, 0, 0, 0.256716, -0.0793734, 0.320151, 2.08165e-12)
 
 [node name="FogOfWar" type="CSGBox3D" parent="."]
 size = Vector3(2000, 2, 2000)

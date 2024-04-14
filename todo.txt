@@ -1,7 +1,3 @@
-Add launchpad asset.
-
-Add rocket asset.
-
 Add turret asset.
 
 Add wall asset.
@@ -86,3 +82,5 @@ Fix slow game scene load.
 [Unsorted] Run in fullscreen
 
 [Unsorted] Show tick and cross in tooltip
+
+[Unsorted] Play around with camera settings - maybe persp is best

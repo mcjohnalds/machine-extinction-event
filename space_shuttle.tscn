@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://dg70iflasqw5v"]
+
+[ext_resource type="PackedScene" uid="uid://x8qrp17y0uj6" path="res://space_shuttle.glb" id="1_olutg"]
+[ext_resource type="Shader" path="res://main.gdshader" id="2_cdyh6"]
+[ext_resource type="Texture2D" uid="uid://d0xsa67rfdopj" path="res://space_shuttle_ao.png" id="3_kunk3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_gl5a3"]
+render_priority = 0
+shader = ExtResource("2_cdyh6")
+shader_parameter/albedo = Color(0.360784, 0.552941, 0.72549, 1)
+shader_parameter/texture_scale = 1.0
+shader_parameter/texture_albedo = ExtResource("3_kunk3")
+
+[node name="space_shuttle" instance=ExtResource("1_olutg")]
+
+[node name="mesh" parent="." index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_gl5a3")
