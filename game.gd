@@ -2,10 +2,15 @@ class_name Game extends Node3D
 
 signal won
 signal lost
+const CONSTANT_ENERGY_GAIN := 2
+const SCINECE_GAIN_PER_LAB := 1
+const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
-const BUILDING_COMPLETION_DURATION := 10.0
+const BUILDING_COMPLETION_DURATION := 20.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
+const TURRET_DRAIN_PER_SECOND = 1
 const CAMERA_SPEED := 6.0
+const TURRET_SHOOT_COOLDOWN := 2.0
 const TURRET_RADIUS := 5.0
 const GHOST_VALID := Color("5d8fba7f")
 const GHOST_INVALID := Color("37546e3e")
@@ -15,13 +20,13 @@ const BUILDING_ENERGY_COST = {
 	BuildingType.TURRET: 50,
 	BuildingType.WALL: 10,
 	BuildingType.MINE: 50,
-	BuildingType.LAB: 50,
+	BuildingType.LAB: 100,
 }
 const BUILDING_ENERGY_SELL_VALUE = {
 	BuildingType.TURRET: 25,
 	BuildingType.WALL: 5,
 	BuildingType.MINE: 25,
-	BuildingType.LAB: 25,
+	BuildingType.LAB: 50,
 }
 var turret_scene := preload("res://turret.tscn")
 var wall_scene := preload("res://wall.tscn")
@@ -49,6 +54,7 @@ var blank_cursor := preload("res://blank_cursor.png")
 @onready var mine_button := $HUD/MineButton as Button
 @onready var lab_button := $HUD/LabButton as Button
 @onready var energy_label := $HUD/EnergyLabel as Label
+@onready var energy_delta_label := $HUD/EnergyDeltaLabel as Label
 @onready var science_label := $HUD/ScienceLabel as Label
 @onready var science_required_label := $HUD/ScienceRequiredLabel as Label
 @onready var tooltip := $HUD/Tooltip as Control
@@ -198,6 +204,7 @@ func _process(delta: float) -> void:
 	process_camera_wasd(delta)
 	process_warning_label()
 	process_rocket(delta)
+	energy_delta_label.text = "%+d energy" % get_energy_gain()
 	for enemy: Node3D in enemies.get_children():
 		process_enemy(enemy, delta)
 	for grid_coord: Vector2i in grid_to_building:
@@ -235,21 +242,22 @@ func get_time() -> float:
 
 func start_enemy_spawn_loop() -> void:
 	await get_tree().create_timer(20.0).timeout
-	var enemies_per_wave := 1.0
+	var wave_index := 0
 	while true:
 		enemy_spawn_position = random_enemy_spawn_position()
 		warning_label.visible = true
 
-		for i in ceili(enemies_per_wave):
+		var enemy_count := roundi(0.6 * pow(wave_index, 1.5) + 2.0)
+		for i in enemy_count:
 			var enemy := enemy_scene.instantiate() as Node3D
 			enemy.position = Vector3(
-				enemy_spawn_position.x + randf_range(-3.0, 3.0),
+				enemy_spawn_position.x + randf_range(-4.0, 4.0),
 				0.0,
-				enemy_spawn_position.z + randf_range(-3.0, 3.0),
+				enemy_spawn_position.z + randf_range(-4.0, 3.0),
 			)
 			enemies.add_child(enemy)
 			enemies_alive += 1
-		enemies_per_wave = enemies_per_wave * 1.2 + 1.0
+		wave_index += 1
 
 		await get_tree().create_timer(60.0).timeout
 
@@ -258,14 +266,23 @@ func start_energy_loop() -> void:
 	while true:
 		if is_game_over:
 			return
-		set_energy(energy + 1)
-		for grid_coord: Vector2i in grid_to_building:
+		set_energy(energy + get_energy_gain())
+		await get_tree().create_timer(1.0).timeout
+
+
+func get_energy_gain() -> int:
+	var delta_energy := CONSTANT_ENERGY_GAIN
+	for grid_coord: Vector2i in grid_to_building:
+		if grid_to_building_completion_proportion[grid_coord] == 1.0:
 			if (
 				grid_to_building[grid_coord] is Mine
-				and grid_to_building_completion_proportion[grid_coord] == 1.0
 			):
-				set_energy(energy + 1)
-		await get_tree().create_timer(1.0).timeout
+				delta_energy += ENERGY_GAIN_PER_MINE
+			elif (
+				grid_to_building[grid_coord] is Turret
+			):
+				delta_energy -= TURRET_DRAIN_PER_SECOND
+	return delta_energy
 
 
 func start_science_loop() -> void:
@@ -277,7 +294,7 @@ func start_science_loop() -> void:
 				grid_to_building[grid_coord] is Lab
 				and grid_to_building_completion_proportion[grid_coord] == 1.0
 			):
-				set_science(science + 1)
+				set_science(science + SCINECE_GAIN_PER_LAB)
 		await get_tree().create_timer(1.0).timeout
 
 
@@ -300,6 +317,10 @@ func process_tooltip() -> void:
 	if can_place_building():
 		var building_cost: int = BUILDING_ENERGY_COST[building_type]
 		tooltip_label.text = "✓ Build for -%s energy" % building_cost
+		if building_type == BuildingType.TURRET:
+			tooltip_label.text += (
+				"\nDrains -%s energy per second" % TURRET_DRAIN_PER_SECOND
+			)
 	elif can_sell_building():
 		tooltip_label.text = "✓ Sell for +%s energy" % get_sell_value()
 	else:
@@ -382,15 +403,15 @@ func get_sell_value() -> int:
 		roundi(mouse_position_3d.z)
 	)
 	if grid_to_building[grid_coord] is Turret:
-		return BuildingType.TURRET
+		return BUILDING_ENERGY_SELL_VALUE[BuildingType.TURRET]
 	if grid_to_building[grid_coord] is Wall:
-		return BuildingType.WALL
+		return BUILDING_ENERGY_SELL_VALUE[BuildingType.WALL]
 	if grid_to_building[grid_coord] is Mine:
-		return BuildingType.MINE
+		return BUILDING_ENERGY_SELL_VALUE[BuildingType.MINE]
 	if grid_to_building[grid_coord] is Lab:
-		return BuildingType.LAB
+		return BUILDING_ENERGY_SELL_VALUE[BuildingType.LAB]
 	push_error("Invalid state")
-	return BuildingType.TURRET
+	return 0
 
 
 func process_camera_wasd(delta: float) -> void:
@@ -508,7 +529,7 @@ func process_building(grid_coord: Vector2i, delta: float) -> void:
 			):
 				nearest_enemy = enemy
 		if (
-			get_time() - turret.last_fired_at > 2.0
+			get_time() - turret.last_fired_at > TURRET_SHOOT_COOLDOWN
 			and (
 				nearest_enemy.position.distance_to(turret.position)
 				< TURRET_RADIUS

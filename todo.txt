@@ -1,4 +1,8 @@
-Adjust game balance.
+Add + science per second label.
+
+Make FOW only appear on turrets.
+
+Check to make sure that win scene isn't being added multiple times.
 
 Add tutorial.
 
@@ -78,3 +82,5 @@ Warning label position calculation is innacurate. I should convert the enemy
 spawn position to view space then screen space for best results.
 
 Fix slow game scene load.
+
+Make enemies destroy incomplete buildings.
