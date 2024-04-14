@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://7cjndxgwsyn7" path="res://wall.tscn" id="4_p5wlr"]
 [ext_resource type="PackedScene" uid="uid://b8etnikxj4lia" path="res://mine.tscn" id="5_6o3kb"]
 [ext_resource type="PackedScene" uid="uid://b4f4fhfvuuexk" path="res://lab.tscn" id="6_o3p7i"]
+[ext_resource type="PackedScene" uid="uid://gon32otradow" path="res://launchpad.tscn" id="7_0d0ja"]
 [ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="7_1b645"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hfirg"]
@@ -28,9 +29,6 @@ albedo_color = Color(0.556863, 0.556863, 0.556863, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_ayy8k"]
 size = Vector3(2000, 1, 2000)
 
-[sub_resource type="BoxMesh" id="BoxMesh_xnaa5"]
-material = ExtResource("7_1b645")
-
 [sub_resource type="CylinderMesh" id="CylinderMesh_lurw7"]
 material = ExtResource("7_1b645")
 
@@ -48,8 +46,7 @@ environment = SubResource("Environment_kvejx")
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(0.965926, 0.25, -0.0669873, 9.02727e-17, 0.258819, 0.965926, 0.258819, -0.933013, 0.25, -0.772434, 10.3235, 2.58372)
-projection = 1
+transform = Transform3D(0.707107, 0.683013, -0.183013, 9.02727e-17, 0.258819, 0.965926, 0.707107, -0.683013, 0.183013, -2.492, 12.013, 2.584)
 fov = 40.0
 size = 10.0
 far = 500.0
@@ -98,16 +95,15 @@ visible = false
 [node name="Buildings" type="Node" parent="."]
 
 [node name="Launchpad" type="Node3D" parent="Buildings"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, 0)
 
-[node name="Base" type="MeshInstance3D" parent="Buildings/Launchpad"]
-transform = Transform3D(0.75, 0, 0, 0, 0.075, 0, 0, 0, 0.75, 0, 0.0270113, 0)
-mesh = SubResource("BoxMesh_xnaa5")
-skeleton = NodePath("../../..")
+[node name="Launchpad" parent="Buildings/Launchpad" instance=ExtResource("7_0d0ja")]
+transform = Transform3D(-1.52271e-08, 0, 0.348355, 0, 0.348355, 0, -0.348355, 0, -1.52271e-08, 0, -5.96046e-08, 0.0267985)
 
 [node name="Rocket" type="Node3D" parent="."]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Rocket"]
-transform = Transform3D(0.256716, 0, 0, 0, 0.256716, 0, 0, 0, 0.256716, 0, 0.305468, 0)
+transform = Transform3D(0.256716, 0, 0, 0, 0.370406, 0, 0, 0, 0.256716, -0.119003, 0.662, 2.08165e-12)
 mesh = SubResource("CylinderMesh_lurw7")
 skeleton = NodePath("../..")
 

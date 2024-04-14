@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://gon32otradow"]
+
+[ext_resource type="PackedScene" uid="uid://eopqqhxu1g2s" path="res://launchpad.glb" id="1_uxpnn"]
+[ext_resource type="Shader" path="res://main.gdshader" id="2_nqvaw"]
+[ext_resource type="Texture2D" uid="uid://dxp2wj86xi2ok" path="res://launchpad_ao.png" id="3_eths8"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_3fdi2"]
+render_priority = 0
+shader = ExtResource("2_nqvaw")
+shader_parameter/albedo = Color(0.360784, 0.552941, 0.72549, 1)
+shader_parameter/texture_scale = 1.0
+shader_parameter/texture_albedo = ExtResource("3_eths8")
+
+[node name="Launchpad" instance=ExtResource("1_uxpnn")]
+
+[node name="Cube" parent="." index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_3fdi2")
