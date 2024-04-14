@@ -2,6 +2,7 @@ class_name Game extends Node3D
 
 signal won
 signal lost
+const DURATION_BEFORE_FIRST_WAVE := 30.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
@@ -70,6 +71,7 @@ var blank_cursor := preload("res://blank_cursor.png")
 @onready var enemies := $Enemies as Node
 @onready var buildings := $Buildings as Node
 @onready var hud := $HUD as CanvasLayer
+@onready var hud_background := $HUD/Background as Control
 @onready var turret_button := $HUD/TurretButton as Button
 @onready var wall_button := $HUD/WallButton as Button
 @onready var mine_button := $HUD/MineButton as Button
@@ -294,7 +296,7 @@ func get_time() -> float:
 
 
 func start_enemy_spawn_loop() -> void:
-	await get_tree().create_timer(20.0).timeout
+	await get_tree().create_timer(DURATION_BEFORE_FIRST_WAVE).timeout
 	var wave_index := 0
 	while true:
 		enemy_spawn_position = random_enemy_spawn_position()
@@ -540,7 +542,8 @@ func process_warning_label() -> void:
 	warning_label.position = viewport_center + 10000.0 * Vector2(dir.x, dir.z)
 	var viewport_size := get_viewport().get_visible_rect().size
 	if warning_label.position.x < 0.0:
-		warning_label.position.x = 0.0
+		# GUI sits on left of screen so don't want to overlap it
+		warning_label.position.x = hud_background.size.x
 	if warning_label.position.x + warning_label.size.x > viewport_size.x:
 		warning_label.position.x = viewport_size.x - warning_label.size.x
 	if warning_label.position.y < 0.0:

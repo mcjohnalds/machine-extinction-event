@@ -123,7 +123,7 @@ smooth_faces = false
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
-[node name="ColorRect" type="ColorRect" parent="HUD"]
+[node name="Background" type="ColorRect" parent="HUD"]
 offset_right = 120.0
 offset_bottom = 800.0
 color = Color(0.301961, 0.301961, 0.301961, 1)
@@ -186,14 +186,6 @@ offset_bottom = 790.0
 theme_override_font_sizes/font_size = 13
 text = "1234 science required to launch rocket"
 autowrap_mode = 3
-
-[node name="WarningLabel" type="Label" parent="HUD"]
-visible = false
-offset_right = 190.0
-offset_bottom = 40.0
-text = "Enemies approaching!"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="TurretButton" type="Button" parent="HUD"]
 offset_left = 10.0
@@ -266,6 +258,14 @@ theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
 text = "Shortcut: 4"
 autowrap_mode = 3
+
+[node name="WarningLabel" type="Label" parent="HUD"]
+visible = false
+offset_right = 190.0
+offset_bottom = 40.0
+text = "Enemies approaching!"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="TutorialPopup" type="ColorRect" parent="HUD"]
 visible = false

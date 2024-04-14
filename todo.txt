@@ -1,7 +1,3 @@
-Disable features until tutorial completion.
-
-Make warning label sit within game window.
-
 Upload to itch.io.
 
 Add launchpad asset.
@@ -84,3 +80,5 @@ Fix slow game scene load.
 [Unsorted] Add restart button to game.
 
 [Unsorted] Add pause button.
+
+[Unsorted] Disable features until tutorial completion.
