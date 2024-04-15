@@ -1,0 +1,99 @@
+[gd_scene load_steps=5 format=3 uid="uid://ctmlo4yjmpgif"]
+
+[ext_resource type="PackedScene" uid="uid://c6ryvfmos7idv" path="res://tank.glb" id="1_6pmc3"]
+[ext_resource type="Shader" path="res://main.gdshader" id="2_4n0lj"]
+[ext_resource type="Texture2D" uid="uid://b5a8gvymh7yme" path="res://tank_ao.png" id="3_hni2l"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7k0fk"]
+render_priority = 0
+shader = ExtResource("2_4n0lj")
+shader_parameter/albedo = Color(0.729412, 0.364706, 0.364706, 1)
+shader_parameter/texture_scale = 1.0
+shader_parameter/texture_albedo = ExtResource("3_hni2l")
+
+[node name="tank" instance=ExtResource("1_6pmc3")]
+
+[node name="RootNode" parent="." index="0"]
+transform = Transform3D(3.25841e-07, 0, -1, 0, 1, 0, 1, 0, 3.25841e-07, 0, 0, 0)
+
+[node name="Tank_Turret" parent="RootNode" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_7k0fk")
+
+[node name="Skeleton3D" parent="RootNode/TankArmature" index="0"]
+bones/1/position = Vector3(-0.028, 0.013019, 0.0393123)
+bones/3/position = Vector3(0.028, 0.013019, 0.0393123)
+bones/3/rotation = Quaternion(-3.17865e-08, -3.55271e-15, 1, -1.90582e-21)
+bones/5/position = Vector3(0.042, 0.013019, 0.0393123)
+bones/5/rotation = Quaternion(-1.50996e-07, -3.55271e-15, 1, -1.79995e-21)
+bones/7/position = Vector3(0.014, 0.013019, 0.0393123)
+bones/7/rotation = Quaternion(-3.17865e-08, -3.55271e-15, 1, -1.90582e-21)
+bones/9/position = Vector3(0.056, 0.013019, 0.0393123)
+bones/9/rotation = Quaternion(-1.19209e-07, -6.85283e-15, 1, 4.37114e-08)
+bones/11/position = Vector3(0.061, 0.013019, 0.0393123)
+bones/11/rotation = Quaternion(-2.8447e-08, 6.88533e-08, 0.906308, -0.422618)
+bones/13/position = Vector3(-0.014, 0.013019, 0.0393123)
+bones/13/rotation = Quaternion(-1.50996e-07, -3.55271e-15, 1, -1.79995e-21)
+bones/15/position = Vector3(-8.3819e-09, 0.013019, 0.0393123)
+bones/15/rotation = Quaternion(-3.17865e-08, -3.55271e-15, 1, -1.90582e-21)
+bones/17/position = Vector3(-0.028, 0.013019, 0.0393123)
+bones/17/rotation = Quaternion(-1.19209e-07, -6.85283e-15, 1, 4.37114e-08)
+bones/19/position = Vector3(-0.042, 0.013019, 0.0393123)
+bones/19/rotation = Quaternion(-1.19209e-07, -6.85283e-15, 1, 4.37114e-08)
+bones/21/position = Vector3(0.056, 0.013019, 0.0393123)
+bones/21/rotation = Quaternion(1.08898e-09, -1.17377e-07, -5.8686e-07, 1)
+bones/23/rotation = Quaternion(1.63186e-08, 3.48126e-08, 0.422619, -0.906308)
+bones/25/rotation = Quaternion(-1.25446e-07, -1.75245e-07, 0.906308, 0.422619)
+bones/27/position = Vector3(-0.056, 0.013019, 0.0393123)
+bones/27/rotation = Quaternion(5.61767e-08, 3.40989e-08, 1, 7.2191e-07)
+bones/29/position = Vector3(0.042, 0.013019, 0.0393123)
+bones/31/position = Vector3(0.028, 0.013019, 0.0393123)
+bones/33/position = Vector3(-1.86265e-09, 0.013019, 0.0393123)
+bones/35/position = Vector3(0.014, 0.013019, 0.0393123)
+bones/37/position = Vector3(-0.061, 0.013019, 0.0393123)
+bones/37/rotation = Quaternion(-1.34336e-08, -5.86107e-08, 0.422618, 0.906308)
+bones/39/position = Vector3(-0.056, 0.013019, 0.0393123)
+bones/41/position = Vector3(-0.014, 0.013019, 0.0393123)
+bones/43/position = Vector3(-0.042, 0.013019, 0.0393123)
+bones/45/position = Vector3(-0.028, 0.013019, -0.0403334)
+bones/47/position = Vector3(0.028, 0.013019, -0.0403334)
+bones/47/rotation = Quaternion(-3.17865e-08, -1.52376e-15, 1, 4.37114e-08)
+bones/49/position = Vector3(0.042, 0.013019, -0.0403334)
+bones/49/rotation = Quaternion(-1.50996e-07, -5.07647e-15, 1, 4.37114e-08)
+bones/51/position = Vector3(0.014, 0.013019, -0.0403334)
+bones/51/rotation = Quaternion(-3.17865e-08, -1.52376e-15, 1, 4.37114e-08)
+bones/53/position = Vector3(0.056, 0.013019, -0.0403334)
+bones/53/rotation = Quaternion(-1.19209e-07, -6.85283e-15, 1, 4.37114e-08)
+bones/55/position = Vector3(0.061, 0.013019, -0.0403334)
+bones/55/rotation = Quaternion(-1.47656e-07, 6.88533e-08, 0.906308, -0.422618)
+bones/57/position = Vector3(-0.014, 0.013019, -0.0403334)
+bones/57/rotation = Quaternion(-1.50996e-07, -5.07647e-15, 1, 4.37114e-08)
+bones/59/position = Vector3(3.72529e-09, 0.013019, -0.0403334)
+bones/59/rotation = Quaternion(-3.17865e-08, -1.52376e-15, 1, 4.37114e-08)
+bones/61/position = Vector3(-0.028, 0.013019, -0.0403334)
+bones/61/rotation = Quaternion(-1.19209e-07, -6.85283e-15, 1, 4.37114e-08)
+bones/63/position = Vector3(-0.042, 0.013019, -0.0403334)
+bones/63/rotation = Quaternion(-1.19209e-07, -6.85283e-15, 1, 4.37114e-08)
+bones/65/position = Vector3(0.056, 0.013019, -0.0403334)
+bones/65/rotation = Quaternion(-8.95528e-08, -5.1893e-08, -6.1387e-07, 1)
+bones/67/rotation = Quaternion(-5.98157e-08, -2.74879e-08, 0.422618, -0.906308)
+bones/69/rotation = Quaternion(-8.77337e-08, -2.01334e-07, 0.906308, 0.422619)
+bones/71/position = Vector3(-0.056, 0.013019, -0.0403334)
+bones/71/rotation = Quaternion(-2.8433e-08, 1.71257e-08, 1, 6.11078e-07)
+bones/73/position = Vector3(0.042, 0.013019, -0.0403334)
+bones/75/position = Vector3(0.028, 0.013019, -0.0403334)
+bones/77/position = Vector3(1.02445e-08, 0.013019, -0.0403334)
+bones/79/position = Vector3(0.014, 0.013019, -0.0403334)
+bones/81/position = Vector3(-0.061, 0.013019, -0.0403334)
+bones/81/rotation = Quaternion(-1.34336e-08, -5.86107e-08, 0.422618, 0.906308)
+bones/83/position = Vector3(-0.056, 0.013019, -0.0403334)
+bones/85/position = Vector3(-0.014, 0.013019, -0.0403334)
+bones/87/position = Vector3(-0.042, 0.013019, -0.0403334)
+
+[node name="Tank_body" parent="RootNode/TankArmature/Skeleton3D" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_7k0fk")
+
+[node name="TrackMesh_L" parent="RootNode/TankArmature/Skeleton3D" index="1"]
+surface_material_override/0 = SubResource("ShaderMaterial_7k0fk")
+
+[node name="TrackMesh_R" parent="RootNode/TankArmature/Skeleton3D" index="2"]
+surface_material_override/0 = SubResource("ShaderMaterial_7k0fk")
