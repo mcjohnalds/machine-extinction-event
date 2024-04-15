@@ -1,16 +1,11 @@
-[gd_scene load_steps=4 format=3 uid="uid://b4f4fhfvuuexk"]
+[gd_scene load_steps=3 format=3 uid="uid://b4f4fhfvuuexk"]
 
 [ext_resource type="Script" path="res://lab.gd" id="1_fa37g"]
-[ext_resource type="Material" uid="uid://d38cmy2vgkbmb" path="res://player.tres" id="2_xrxix"]
-
-[sub_resource type="PrismMesh" id="PrismMesh_77286"]
-material = ExtResource("2_xrxix")
-size = Vector3(0.7, 0.5, 0.7)
+[ext_resource type="PackedScene" uid="uid://j3561eo5ilhx" path="res://lab_glb.tscn" id="2_6kike"]
 
 [node name="Lab" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
 script = ExtResource("1_fa37g")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.25, 2.08165e-12)
-mesh = SubResource("PrismMesh_77286")
+[node name="lab" parent="." instance=ExtResource("2_6kike")]
+transform = Transform3D(0.296576, 0, 0, 0, 0.296576, 0, 0, 0, 0.296576, 2.08165e-12, -0.00129215, 2.08165e-12)

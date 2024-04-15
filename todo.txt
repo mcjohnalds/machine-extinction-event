@@ -1,10 +1,4 @@
-Add mine asset.
-
-Add lab asset.
-
 Add enemy asset.
-
-Add ground texture.
 
 Add turret shoot sound effect.
 
@@ -90,3 +84,7 @@ Fix slow game scene load.
 [Unsorted] Make launchpad 2x size for visibility
 
 [Unsorted] Fix shitty meshes and AO maps.
+
+[Unsorted] Make ground look less boring.
+
+[Unsorted] Make turret pitch.

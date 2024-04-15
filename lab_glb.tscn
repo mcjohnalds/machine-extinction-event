@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://j3561eo5ilhx"]
+
+[ext_resource type="PackedScene" uid="uid://b40wkoucyuvde" path="res://lab.glb" id="1_iu7c8"]
+[ext_resource type="Shader" path="res://main.gdshader" id="2_n73xk"]
+[ext_resource type="Texture2D" uid="uid://cc153wmlmg13c" path="res://lab_ao.png" id="3_rnx6m"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ydw1b"]
+render_priority = 0
+shader = ExtResource("2_n73xk")
+shader_parameter/albedo = Color(0.360784, 0.552941, 0.72549, 1)
+shader_parameter/texture_scale = 1.0
+shader_parameter/texture_albedo = ExtResource("3_rnx6m")
+
+[node name="lab" instance=ExtResource("1_iu7c8")]
+
+[node name="GeodesicDome" parent="RootNode" index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_ydw1b")
