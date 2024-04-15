@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3 uid="uid://c0troj1fq13ku"]
+
+[ext_resource type="PackedScene" uid="uid://cbgj6tmrg0os4" path="res://wall.glb" id="1_jorsw"]
+[ext_resource type="Shader" path="res://main.gdshader" id="2_tnuj5"]
+[ext_resource type="Texture2D" uid="uid://dhju6thjxnyo1" path="res://wall_ao.png" id="3_cidlw"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_xtfwa"]
+render_priority = 0
+shader = ExtResource("2_tnuj5")
+shader_parameter/albedo = Color(0.360784, 0.552941, 0.72549, 1)
+shader_parameter/texture_scale = 1.0
+shader_parameter/texture_albedo = ExtResource("3_cidlw")
+
+[node name="wall" instance=ExtResource("1_jorsw")]
+
+[node name="Cube" parent="." index="0"]
+surface_material_override/0 = SubResource("ShaderMaterial_xtfwa")
