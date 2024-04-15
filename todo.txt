@@ -4,8 +4,6 @@ Add lab asset.
 
 Add enemy asset.
 
-Add uranium asset.
-
 Add ground texture.
 
 Add turret shoot sound effect.

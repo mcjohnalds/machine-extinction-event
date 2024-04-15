@@ -663,6 +663,7 @@ func add_uranium(grid_coord: Vector2i) -> void:
 	var uranium := uranium_scene.instantiate() as Node3D
 	uranium.position.x = grid_coord.x
 	uranium.position.z = grid_coord.y
+	uranium.rotation.y = randf() * TAU
 	add_child(uranium)
 	grid_to_uranium[grid_coord] = uranium
 
