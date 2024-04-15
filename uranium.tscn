@@ -6,4 +6,4 @@
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
 
 [node name="uranium" parent="." instance=ExtResource("1_lqrqb")]
-transform = Transform3D(0.439973, 0, 0, 0, 0.439973, 0, 0, 0, 0.439973, 0, -0.05, 0)
+transform = Transform3D(0.425257, 0, 0, 0, 0.523355, 0, 0, 0, 0.358947, -0.025912, -0.05, -0.0218269)
