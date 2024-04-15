@@ -9,6 +9,7 @@ const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
 const BUILDING_COMPLETION_DURATION := 20.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
+const ENEMY_SPEED = 1.0
 const TURRET_DRAIN_PER_SECOND = 1
 const CAMERA_SPEED := 6.0
 const TURRET_SHOOT_COOLDOWN := 2.0
@@ -631,7 +632,7 @@ func process_enemy(enemy: Node3D, delta: float) -> void:
 	var grid_coord := get_nearest_completed_building(enemy.position)
 	var nearest_building: Node3D = grid_to_building[grid_coord]
 	enemy.look_at(nearest_building.position, Vector3.UP, true)
-	enemy.position += enemy.basis.z * delta * 1.0
+	enemy.position += enemy.basis.z * delta * ENEMY_SPEED
 	if enemy.position.distance_to(nearest_building.position) < 1.0:
 		enemy.queue_free()
 		enemies_alive -= 1

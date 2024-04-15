@@ -1,5 +1,3 @@
-Add turret asset.
-
 Add wall asset.
 
 Add mine asset.
@@ -84,3 +82,11 @@ Fix slow game scene load.
 [Unsorted] Show tick and cross in tooltip
 
 [Unsorted] Play around with camera settings - maybe persp is best
+
+[Unsorted] Use more than one color
+
+[Unsorted] Rim light to highlight important things?
+
+[Unsorted] Make turret gradually rotate
+
+[Unsorted] Better construction effect

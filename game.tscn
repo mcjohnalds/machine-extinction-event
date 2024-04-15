@@ -1,9 +1,8 @@
-[gd_scene load_steps=17 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=16 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_a4s7c"]
 [ext_resource type="PackedScene" uid="uid://cdl15ju1voxhk" path="res://turret.tscn" id="2_i6sex"]
 [ext_resource type="Texture2D" uid="uid://b1b76jq4rrpmv" path="res://concrete.png" id="3_5vqge"]
-[ext_resource type="Texture2D" uid="uid://dljvff4hxe2vs" path="res://dotted_circle.png" id="3_x8fnx"]
 [ext_resource type="PackedScene" uid="uid://7cjndxgwsyn7" path="res://wall.tscn" id="4_p5wlr"]
 [ext_resource type="PackedScene" uid="uid://b8etnikxj4lia" path="res://mine.tscn" id="5_6o3kb"]
 [ext_resource type="PackedScene" uid="uid://b4f4fhfvuuexk" path="res://lab.tscn" id="6_o3p7i"]
@@ -69,18 +68,7 @@ shape = SubResource("BoxShape3D_ayy8k")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
 visible = false
 
-[node name="Turret" type="Node3D" parent="Ghost"]
-
-[node name="Turret" parent="Ghost/Turret" instance=ExtResource("2_i6sex")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.08165e-12, 2.08165e-12)
-
-[node name="Ring" type="Node3D" parent="Ghost/Turret"]
-transform = Transform3D(2, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0)
-
-[node name="Sprite3D" type="Sprite3D" parent="Ghost/Turret/Ring"]
-transform = Transform3D(0.273457, 0, -4.16911e-24, -4.16911e-24, -1.19532e-08, -0.273457, 0, 0.273457, -1.19532e-08, 0, 0.01, 2.08165e-12)
-modulate = Color(0.360784, 0.552941, 0.72549, 1)
-texture = ExtResource("3_x8fnx")
+[node name="Turret" parent="Ghost" instance=ExtResource("2_i6sex")]
 
 [node name="Wall" parent="Ghost" instance=ExtResource("4_p5wlr")]
 visible = false
