@@ -67,6 +67,7 @@ shape = SubResource("BoxShape3D_ayy8k")
 
 [node name="Ghost" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+visible = false
 
 [node name="Turret" type="Node3D" parent="Ghost"]
 

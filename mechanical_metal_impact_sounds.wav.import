@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://cot2fwo0s4vmi"
-path="res://.godot/imported/mechanical_metal_impacts_sounds.wav-9998f8863d579e61c235e0e07a6cd8d5.sample"
+path="res://.godot/imported/mechanical_metal_impact_sounds.wav-3724febfef7cd47ed3d9ba80d0f24ba5.sample"
 
 [deps]
 
-source_file="res://mechanical_metal_impacts_sounds.wav"
-dest_files=["res://.godot/imported/mechanical_metal_impacts_sounds.wav-9998f8863d579e61c235e0e07a6cd8d5.sample"]
+source_file="res://mechanical_metal_impact_sounds.wav"
+dest_files=["res://.godot/imported/mechanical_metal_impact_sounds.wav-3724febfef7cd47ed3d9ba80d0f24ba5.sample"]
 
 [params]
 

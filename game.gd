@@ -73,6 +73,8 @@ var laser_sounds := [
 	preload("res://laser_9.ogg"),
 	preload("res://laser_10.ogg"),
 ] as Array[Resource]
+var building_placed_sound := preload("res://building_placed.ogg")
+var building_completed_sound := preload("res://building_completed.ogg")
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -156,6 +158,11 @@ func _ready() -> void:
 	):
 		mesh.material_override = player_ghost
 
+	var asp := AudioStreamPlayer3D.new() 
+	asp.max_polyphony = 5
+	ghost.add_child(asp)
+	audio_stream_players[ghost] = asp
+
 	start_enemy_spawn_loop()
 	start_energy_loop()
 	start_science_loop()
@@ -217,6 +224,10 @@ func _on_ground_input_event(
 
 	if event.is_pressed():
 		if can_place_building():
+			var ghost_asp: AudioStreamPlayer3D = audio_stream_players[ghost]
+			ghost_asp.stream = building_placed_sound
+			ghost_asp.play()
+
 			var building_cost: int = BUILDING_ENERGY_COST[building_type]
 			set_energy(energy - building_cost)
 			var building_scene := (
@@ -251,9 +262,9 @@ func _on_ground_input_event(
 					fog_of_war.add_child(visibility_ring)
 					grid_to_visibility_ring[grid_coord] = visibility_ring
 
-					var asp := AudioStreamPlayer3D.new() 
-					building.add_child(asp)
-					audio_stream_players[building] = asp
+					var building_asp := AudioStreamPlayer3D.new() 
+					building.add_child(building_asp)
+					audio_stream_players[building] = building_asp
 
 					if tutorial_step == TutorialStep.TURRET:
 						go_to_next_tutorial_step()
@@ -601,15 +612,19 @@ func hide_ghost_children() -> void:
 
 func process_building(grid_coord: Vector2i, delta: float) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
+	var asp: AudioStreamPlayer3D = audio_stream_players.get(building)
+
 	var gcp := grid_to_building_completion_proportion
 	if gcp[grid_coord] < 1.0:
 		gcp[grid_coord] += delta / BUILDING_COMPLETION_DURATION
-	if gcp[grid_coord] > 1.0:
-		gcp[grid_coord] = 1.0
-		for mesh: MeshInstance3D in (
-			building.find_children("*", "MeshInstance3D", true, false)
-		):
-			mesh.material_override = null
+		if gcp[grid_coord] >= 1.0:
+			gcp[grid_coord] = 1.0
+			asp.stream = building_completed_sound
+			asp.play()
+			for mesh: MeshInstance3D in (
+				building.find_children("*", "MeshInstance3D", true, false)
+			):
+				mesh.material_override = null
 	building.position.y = -0.4 + gcp[grid_coord] * 0.4
 	if building is Turret and gcp[grid_coord] == 1.0:
 		var turret := building as Turret
@@ -640,7 +655,6 @@ func process_building(grid_coord: Vector2i, delta: float) -> void:
 			var gun := turret.find_child("Gun") as Node3D
 			gun.look_at(nearest_enemy.position, Vector3.UP, true)
 
-			var asp: AudioStreamPlayer3D = audio_stream_players[building]
 			asp.stream = laser_sounds.pick_random()
 			asp.play()
 
