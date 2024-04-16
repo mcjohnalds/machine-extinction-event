@@ -61,6 +61,18 @@ var mine_scene := preload("res://mine.tscn")
 var player_transparent := preload("res://player_transparent.tres") as BaseMaterial3D
 var player_ghost := preload("res://player_ghost.tres") as BaseMaterial3D
 var blank_cursor := preload("res://blank_cursor.png")
+var laser_sounds := [
+	preload("res://laser_1.ogg"),
+	preload("res://laser_2.ogg"),
+	preload("res://laser_3.ogg"),
+	preload("res://laser_4.ogg"),
+	preload("res://laser_5.ogg"),
+	preload("res://laser_6.ogg"),
+	preload("res://laser_7.ogg"),
+	preload("res://laser_8.ogg"),
+	preload("res://laser_9.ogg"),
+	preload("res://laser_10.ogg"),
+] as Array[Resource]
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -101,6 +113,7 @@ var grid_to_building := {} # Dictionary[Vector2i, Node3D]
 var grid_to_building_completion_proportion := {} # Dictionary[Vector2i, float]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
+var audio_stream_players := {} # Dictionary[Node, AudioStreamPlayer]
 var energy := 150
 var science := 0
 var camera_offset := Vector3.ZERO
@@ -108,6 +121,7 @@ var enemy_spawn_position := Vector3.ZERO
 var enemies_alive := 0
 var is_game_over := false
 var is_rocket_taking_off := false
+
 
 
 func _ready() -> void:
@@ -236,7 +250,11 @@ func _on_ground_input_event(
 					visibility_ring.position = building.position
 					fog_of_war.add_child(visibility_ring)
 					grid_to_visibility_ring[grid_coord] = visibility_ring
-					
+
+					var asp := AudioStreamPlayer3D.new() 
+					building.add_child(asp)
+					audio_stream_players[building] = asp
+
 					if tutorial_step == TutorialStep.TURRET:
 						go_to_next_tutorial_step()
 				BuildingType.WALL:
@@ -613,11 +631,18 @@ func process_building(grid_coord: Vector2i, delta: float) -> void:
 			)
 		):
 			turret.last_fired_at = get_time()
+
 			add_tracer(turret, nearest_enemy)
+
 			nearest_enemy.queue_free()
 			enemies_alive -= 1
+
 			var gun := turret.find_child("Gun") as Node3D
 			gun.look_at(nearest_enemy.position, Vector3.UP, true)
+
+			var asp: AudioStreamPlayer3D = audio_stream_players[building]
+			asp.stream = laser_sounds.pick_random()
+			asp.play()
 
 
 func process_rocket(delta: float) -> void:

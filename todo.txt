@@ -1,5 +1,3 @@
-Add turret shoot sound effect. (laser)
-
 Add building started sound effect. (Mechanical_metal_impacts_sounds)
 
 Add building progress sound effect. (Forcefield Hum)
@@ -114,3 +112,5 @@ Fix slow game scene load.
 [Unsorted] Credits screen.
 
 [Unsorted] Give each building an idle sound effect.
+
+[Unsorted] Make sure audio never reaches 0 dB.
