@@ -1,21 +1,37 @@
-Add turret shoot sound effect.
+Add turret shoot sound effect. (laser)
 
-Add building placed sound effect.
+Add building started sound effect. (Mechanical_metal_impacts_sounds)
 
-Add building completed sound effect.
+Add building progress sound effect. (Forcefield Hum)
 
-Add building destroyed sound effect.
+Add building completed sound effect. (Mechanical_metal_impacts_sounds)
 
-Add rocket takeoff sound effect.
+Add building destroyed sound effect. (building_collapse05_loud.wav)
 
-Add launchpad destroyed sound effect.
+Add enemy destoyed sound effect.
+(heavy_big_sci_fi_cinematic_explosion_with_tail.wav)
 
-Add warning sound effect.
+Add rocket takeoff sound effect. (rocket_loop.wav,
+rocket_boost_engine_loop.wav, looping_thrust.ogg)
+
+Add launchpad destroyed sound effect. (explosion.wav)
+
+Add warning sound effect. (alarm_sounds_distant.mp3)
+
+Add sell sound effect. (pebble_drop_in_cup.wav)
+
+Add button click sound effect. (menu_select.wav)
+
+Add select building sound effect. (menu_select_tick.wav)
+
+Add building place failed sound effect. (file_select.wav)
 
 Add start music. Make this intro sound like this
 https://www.youtube.com/watch?v=ATjwFQntE_Q
 
 Add game music.
+
+Add fight music with transition.
 
 Add win music.
 
@@ -90,3 +106,11 @@ Fix slow game scene load.
 [Unsorted] Tank track animation
 
 [Unsorted] Add blender animations to other stuff.
+
+[Unsorted] Maybe add vinette.
+
+[Unsorted] Make the machines 3 leg tripods.
+
+[Unsorted] Credits screen.
+
+[Unsorted] Give each building an idle sound effect.

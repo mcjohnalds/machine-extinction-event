@@ -15,18 +15,20 @@ horizontal_alignment = 1
 
 [node name="Label2" type="Label" parent="."]
 layout_mode = 0
-offset_left = 419.0
+offset_left = 319.0
 offset_top = 370.0
-offset_right = 780.0
+offset_right = 880.0
 offset_bottom = 445.0
-text = "Machines have encircled the last of humanity. Our only hope is to escape earth."
+text = "The year is 2099.
+Self-replicating machines have have encircled the last of humanity.
+Our only hope is to escape earth."
 horizontal_alignment = 1
 autowrap_mode = 3
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 0
 offset_left = 560.0
-offset_top = 450.0
+offset_top = 460.0
 offset_right = 640.0
-offset_bottom = 481.0
+offset_bottom = 491.0
 text = "Start"
