@@ -101,6 +101,9 @@ var warning_sound := (
 var sell_sound := (
 	preload("res://pebble_drop_in_cup.ogg") as AudioStream
 )
+var tick_sound := (
+	preload("res://menu_select_tick.ogg") as AudioStream
+)
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -196,6 +199,12 @@ func _ready() -> void:
 	spawn_all_uranium()
 
 	tutorial_popup_button.pressed.connect(func() -> void:
+		var asp := AudioStreamPlayer.new()
+		add_child(asp)
+		asp.stream = tick_sound
+		asp.play()
+		asp.finished.connect(func() -> void: asp.queue_free())
+
 		tutorial_popup.visible = false
 		if (
 			tutorial_step == TutorialStep.ENERGY
@@ -310,6 +319,7 @@ func _on_ground_input_event(
 				add_child(asp)
 				asp.stream = sell_sound
 				asp.play()
+				asp.finished.connect(func() -> void: asp.queue_free())
 
 				set_energy(energy + get_sell_value())
 				erase_building(grid_coord)
@@ -355,6 +365,7 @@ func start_enemy_spawn_loop() -> void:
 		add_child(asp)
 		asp.stream = warning_sound
 		asp.play()
+		asp.finished.connect(func() -> void: asp.queue_free())
 
 		var enemy_count := roundi(0.6 * pow(wave_index, 1.5) + 2.0)
 		for i in enemy_count:
@@ -807,6 +818,12 @@ func spawn_all_uranium() -> void:
 
 
 func select_building_type(t: BuildingType) -> void:
+	var asp := AudioStreamPlayer.new()
+	add_child(asp)
+	asp.stream = tick_sound
+	asp.play()
+	asp.finished.connect(func() -> void: asp.queue_free())
+				
 	ghost.visible = true
 	no_building_type_selected = false
 	building_type = t
