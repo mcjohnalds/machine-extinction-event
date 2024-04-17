@@ -1,5 +1,3 @@
-Add building progress sound effect. (Forcefield Hum)
-
 Add building destroyed sound effect. (building_collapse05_loud.wav)
 
 Add enemy destoyed sound effect.
@@ -32,6 +30,8 @@ Add win music.
 Add lose music.
 
 Make sound/music volumes good.
+
+Add blob shadow.
 
 Add building explosion effect.
 
@@ -112,6 +112,3 @@ Fix slow game scene load.
 [Unsorted] Give each building an idle sound effect.
 
 [Unsorted] Make sure audio never reaches 0 dB.
-
-[Unsorted] Fix bug where building completion sound does not play if turret
-fires at enemy immediately upon completion.

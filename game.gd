@@ -72,9 +72,10 @@ var laser_sounds := [
 	preload("res://laser_8.ogg"),
 	preload("res://laser_9.ogg"),
 	preload("res://laser_10.ogg"),
-] as Array[Resource]
+] as Array[AudioStream]
 var building_placed_sound := preload("res://building_placed.ogg")
 var building_completed_sound := preload("res://building_completed.ogg")
+var building_progress_sound := preload("res://forcefield_hum.ogg")
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -115,7 +116,8 @@ var grid_to_building := {} # Dictionary[Vector2i, Node3D]
 var grid_to_building_completion_proportion := {} # Dictionary[Vector2i, float]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
-var audio_stream_players := {} # Dictionary[Node, AudioStreamPlayer]
+var grid_to_building_completion_stream_id := {} # Dictionary[Vector2i, int]
+var audio_playbacks := {} # Dictionary[Node, AudioStreamPlaybackPolyphonic]
 var energy := 150
 var science := 0
 var camera_offset := Vector3.ZERO
@@ -150,6 +152,7 @@ func _ready() -> void:
 	grid_to_building[Vector2i(0, 0)] = launchpad
 	grid_to_building_completion_proportion[Vector2i(0, 0)] = 1.0
 	ground.input_event.connect(_on_ground_input_event)
+	add_audio_stream_player(launchpad)
 
 	ghost_turret_ring.scale.x = TURRET_RADIUS * 2.0
 	ghost_turret_ring.scale.z = TURRET_RADIUS * 2.0
@@ -157,11 +160,6 @@ func _ready() -> void:
 		ghost.find_children("*", "MeshInstance3D", true, false)
 	):
 		mesh.material_override = player_ghost
-
-	var asp := AudioStreamPlayer3D.new() 
-	asp.max_polyphony = 5
-	ghost.add_child(asp)
-	audio_stream_players[ghost] = asp
 
 	start_enemy_spawn_loop()
 	start_energy_loop()
@@ -224,10 +222,6 @@ func _on_ground_input_event(
 
 	if event.is_pressed():
 		if can_place_building():
-			var ghost_asp: AudioStreamPlayer3D = audio_stream_players[ghost]
-			ghost_asp.stream = building_placed_sound
-			ghost_asp.play()
-
 			var building_cost: int = BUILDING_ENERGY_COST[building_type]
 			set_energy(energy - building_cost)
 			var building_scene := (
@@ -253,6 +247,13 @@ func _on_ground_input_event(
 				mesh.material_override = player_transparent
 			buildings.add_child(building)
 
+			add_audio_stream_player(building)
+			var asp: AudioStreamPlaybackPolyphonic = audio_playbacks[building]
+			asp.play_stream(building_placed_sound)
+			grid_to_building_completion_stream_id[grid_coord] = (
+				asp.play_stream(building_progress_sound)
+			)
+
 			match building_type:
 				BuildingType.TURRET:
 					var visibility_ring := (
@@ -261,10 +262,6 @@ func _on_ground_input_event(
 					visibility_ring.position = building.position
 					fog_of_war.add_child(visibility_ring)
 					grid_to_visibility_ring[grid_coord] = visibility_ring
-
-					var building_asp := AudioStreamPlayer3D.new() 
-					building.add_child(building_asp)
-					audio_stream_players[building] = building_asp
 
 					if tutorial_step == TutorialStep.TURRET:
 						go_to_next_tutorial_step()
@@ -593,12 +590,17 @@ func erase_building(grid_coord: Vector2i) -> void:
 	building.queue_free()
 	grid_to_building.erase(grid_coord)
 
+	audio_playbacks.erase(building)
+
 	if grid_coord in grid_to_visibility_ring:
 		var visibility_ring: Node3D = grid_to_visibility_ring[grid_coord]
 		visibility_ring.queue_free()
 		grid_to_visibility_ring.erase(grid_coord)
 
 	grid_to_building_completion_proportion.erase(grid_coord)
+
+	if grid_coord in grid_to_building_completion_stream_id:
+		grid_to_building_completion_stream_id.erase(grid_coord)
 
 	if grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
 		rocket.queue_free()
@@ -612,15 +614,17 @@ func hide_ghost_children() -> void:
 
 func process_building(grid_coord: Vector2i, delta: float) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
-	var asp: AudioStreamPlayer3D = audio_stream_players.get(building)
-
+	var asp: AudioStreamPlaybackPolyphonic = audio_playbacks[building]
 	var gcp := grid_to_building_completion_proportion
 	if gcp[grid_coord] < 1.0:
 		gcp[grid_coord] += delta / BUILDING_COMPLETION_DURATION
 		if gcp[grid_coord] >= 1.0:
 			gcp[grid_coord] = 1.0
-			asp.stream = building_completed_sound
-			asp.play()
+			asp.play_stream(building_completed_sound)
+			var stream_id: int = (
+				grid_to_building_completion_stream_id[grid_coord]
+			)
+			asp.stop_stream(stream_id)
 			for mesh: MeshInstance3D in (
 				building.find_children("*", "MeshInstance3D", true, false)
 			):
@@ -655,8 +659,8 @@ func process_building(grid_coord: Vector2i, delta: float) -> void:
 			var gun := turret.find_child("Gun") as Node3D
 			gun.look_at(nearest_enemy.position, Vector3.UP, true)
 
-			asp.stream = laser_sounds.pick_random()
-			asp.play()
+			var stream: AudioStream = laser_sounds.pick_random()
+			asp.play_stream(stream)
 
 
 func process_rocket(delta: float) -> void:
@@ -795,3 +799,12 @@ func building_exists(t: BuildingType) -> bool:
 		):
 			return true
 	return false
+
+
+func add_audio_stream_player(node: Node3D) -> void:
+	var asp := AudioStreamPlayer3D.new() 
+	var stream := AudioStreamPolyphonic.new() 
+	asp.stream = stream
+	node.add_child(asp)
+	asp.play()
+	audio_playbacks[node] = asp.get_stream_playback()
