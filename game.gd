@@ -104,6 +104,9 @@ var sell_sound := (
 var tick_sound := (
 	preload("res://menu_select_tick.ogg") as AudioStream
 )
+var building_place_failed_sound := (
+	preload("res://file_select.ogg") as AudioStream
+)
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -323,6 +326,13 @@ func _on_ground_input_event(
 
 				set_energy(energy + get_sell_value())
 				erase_building(grid_coord)
+		else:
+			var asp := AudioStreamPlayer.new()
+			add_child(asp)
+			asp.stream = building_place_failed_sound
+			asp.play()
+			asp.finished.connect(func() -> void: asp.queue_free())
+
 
 
 func _process(delta: float) -> void:

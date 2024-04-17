@@ -1,7 +1,3 @@
-Add select building sound effect. (menu_select_tick.wav)
-
-Add building place failed sound effect. (file_select.wav)
-
 Add start music. Make this intro sound like this
 https://www.youtube.com/watch?v=ATjwFQntE_Q
 
