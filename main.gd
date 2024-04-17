@@ -4,6 +4,9 @@ var game_scene := preload("res://game.tscn")
 var start_scene := preload("res://start.tscn")
 var won_scene := preload("res://won.tscn")
 var lost_scene := preload("res://lost.tscn")
+var button_press_sound := (
+	preload("res://menu_select.ogg") as AudioStream
+)
 
 
 func _ready() -> void:
@@ -14,6 +17,7 @@ func _ready() -> void:
 
 
 func on_start_button_pressed() -> void:
+	play_button_press_sound()
 	await free_children()
 	var game := game_scene.instantiate() as Game
 	game.won.connect(on_won)
@@ -37,8 +41,9 @@ func on_lost() -> void:
 
 func free_children() -> void:
 	for c in get_children():
-		c.queue_free()
-		await c.tree_exited
+		if not c is AudioStreamPlayer:
+			c.queue_free()
+			await c.tree_exited
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -46,3 +51,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		var e := event as InputEventKey
 		if e.pressed and e.keycode == KEY_ESCAPE and OS.has_feature("editor"):
 			get_tree().quit()
+
+
+func play_button_press_sound() -> void:
+	var asp := AudioStreamPlayer.new()
+	add_child(asp)
+	asp.stream = button_press_sound
+	asp.play()
+	asp.finished.connect(func() -> void:
+		asp.queue_free()
+	)
