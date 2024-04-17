@@ -1,13 +1,3 @@
-Add game music. (piano_and_flute.mp3)
-
-Add fight music with transition. (epic_orchestra_loop.wav)
-
-Add win music. (vann_westfold_secundo_tempore_remix.wav)
-
-Add lose music. (the_dramatic_music.wav)
-
-Make sound/music volumes good.
-
 Add blob shadow.
 
 Add building explosion effect.
@@ -41,6 +31,8 @@ Warning label position calculation is innacurate. I should convert the enemy
 spawn position to view space then screen space for best results.
 
 Fix slow game scene load.
+
+[Unsorted] Make sound/music volumes good.
 
 [Unsorted] Make enemies destroy incomplete buildings.
 
@@ -95,3 +87,5 @@ https://freesound.org/people/CHAKONG/sounds/722633/
 
 [Unsorted] Add loading music
 https://freesound.org/people/Antenalosmusic/sounds/731716/
+
+[Unsorted] Slow time when player loses game.

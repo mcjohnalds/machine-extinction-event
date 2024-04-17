@@ -15,8 +15,16 @@ var game_music := (
 var fight_music := (
 	preload("res://epic_orchestra_loop.ogg") as AudioStream
 )
+var win_music := (
+	preload("res://vann_westfold_secundo_tempore_remix.ogg") as AudioStream
+)
+var lose_music := (
+	preload("res://the_dramatic_music.ogg") as AudioStream
+)
 var game_music_asp := AudioStreamPlayer.new()
 var fight_music_asp := AudioStreamPlayer.new()
+var win_music_asp := AudioStreamPlayer.new()
+var lose_music_asp := AudioStreamPlayer.new()
 var game: Game
 
 
@@ -35,16 +43,38 @@ func _ready() -> void:
 	fight_music_asp.volume_db = MIN_VOLUME
 	fight_music_asp.play()
 
+	add_child(win_music_asp)
+	win_music_asp.stream = win_music
+	win_music_asp.volume_db = MIN_VOLUME
+	win_music_asp.play()
+
+	add_child(lose_music_asp)
+	lose_music_asp.stream = lose_music
+	lose_music_asp.volume_db = MIN_VOLUME
+	lose_music_asp.play()
+
 
 func _process(delta: float) -> void:
-	if game and game.enemies_alive > 0:
+	if game and game.enemies_alive > 0 and not game.is_game_over:
 		fade_out_asp(game_music_asp, delta)
-		if fight_music_asp.volume_db == MIN_VOLUME:
-			fight_music_asp.seek(0.0)
-		fade_in_asp(fight_music_asp, delta)
+		fade_in_from_start_asp(fight_music_asp, delta)
+		fade_out_asp(win_music_asp, delta)
+		fade_out_asp(lose_music_asp, delta)
+	elif game and game.is_game_over and game.is_rocket_taking_off:
+		fade_out_asp(game_music_asp, delta)
+		fade_out_asp(fight_music_asp, delta)
+		fade_in_from_start_asp(win_music_asp, delta)
+		fade_out_asp(lose_music_asp, delta)
+	elif game and game.is_game_over and not game.is_rocket_taking_off:
+		fade_out_asp(game_music_asp, delta)
+		fade_out_asp(fight_music_asp, delta)
+		fade_out_asp(win_music_asp, delta)
+		fade_in_from_start_asp(lose_music_asp, delta)
 	else:
 		fade_in_asp(game_music_asp, delta)
 		fade_out_asp(fight_music_asp, delta)
+		fade_out_asp(win_music_asp, delta)
+		fade_out_asp(lose_music_asp, delta)
 
 
 func on_start_button_pressed() -> void:
@@ -92,3 +122,8 @@ func fade_out_asp(asp: AudioStreamPlayer, delta: float) -> void:
 func fade_in_asp(asp: AudioStreamPlayer, delta: float) -> void:
 	var dv := MIN_VOLUME / MUSIC_TRANSITION_TIME * delta
 	asp.volume_db = minf(asp.volume_db - dv, 0.0)
+
+func fade_in_from_start_asp(asp: AudioStreamPlayer, delta: float) -> void:
+	if asp.volume_db == MIN_VOLUME:
+		asp.seek(0.0)
+	fade_in_asp(asp, delta)

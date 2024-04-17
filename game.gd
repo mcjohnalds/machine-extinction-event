@@ -3,14 +3,12 @@ class_name Game extends Node3D
 signal won
 signal lost
 const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
-#const DURATION_BEFORE_FIRST_WAVE := 30.0
-const DURATION_BEFORE_FIRST_WAVE := 4.0
+const DURATION_BEFORE_FIRST_WAVE := 30.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
-#const BUILDING_COMPLETION_DURATION := 20.0
-const BUILDING_COMPLETION_DURATION := 2.0
+const BUILDING_COMPLETION_DURATION := 20.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
 const ENEMY_SPEED = 1.0
 const TURRET_DRAIN_PER_SECOND = 1
@@ -159,7 +157,6 @@ var enemy_spawn_position := Vector3.ZERO
 var enemies_alive := 0
 var is_game_over := false
 var is_rocket_taking_off := false
-
 
 
 func _ready() -> void:
@@ -358,7 +355,8 @@ func start_enemy_spawn_loop() -> void:
 	while true:
 		enemy_spawn_position = random_enemy_spawn_position()
 		warning_label.visible = true
-		Util.play_sound(self, warning_sound)
+		if not is_game_over:
+			Util.play_sound(self, warning_sound)
 
 		var enemy_count := roundi(0.6 * pow(wave_index, 1.5) + 2.0)
 		for i in enemy_count:
