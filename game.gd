@@ -98,6 +98,9 @@ var explosion_sound := (
 var warning_sound := (
 	preload("res://warning.ogg") as AudioStream
 )
+var sell_sound := (
+	preload("res://pebble_drop_in_cup.ogg") as AudioStream
+)
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -303,6 +306,11 @@ func _on_ground_input_event(
 					if tutorial_step == TutorialStep.LAB:
 						go_to_next_tutorial_step()
 		elif can_sell_building():
+				var asp := AudioStreamPlayer.new()
+				add_child(asp)
+				asp.stream = sell_sound
+				asp.play()
+
 				set_energy(energy + get_sell_value())
 				erase_building(grid_coord)
 
