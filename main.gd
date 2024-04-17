@@ -17,7 +17,7 @@ func _ready() -> void:
 
 
 func on_start_button_pressed() -> void:
-	play_button_press_sound()
+	Util.play_sound(self, button_press_sound)
 	await free_children()
 	var game := game_scene.instantiate() as Game
 	game.won.connect(on_won)
@@ -51,13 +51,3 @@ func _unhandled_input(event: InputEvent) -> void:
 		var e := event as InputEventKey
 		if e.pressed and e.keycode == KEY_ESCAPE and OS.has_feature("editor"):
 			get_tree().quit()
-
-
-func play_button_press_sound() -> void:
-	var asp := AudioStreamPlayer.new()
-	add_child(asp)
-	asp.stream = button_press_sound
-	asp.play()
-	asp.finished.connect(func() -> void:
-		asp.queue_free()
-	)

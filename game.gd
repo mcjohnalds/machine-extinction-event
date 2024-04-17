@@ -202,11 +202,7 @@ func _ready() -> void:
 	spawn_all_uranium()
 
 	tutorial_popup_button.pressed.connect(func() -> void:
-		var asp := AudioStreamPlayer.new()
-		add_child(asp)
-		asp.stream = tick_sound
-		asp.play()
-		asp.finished.connect(func() -> void: asp.queue_free())
+		Util.play_sound(self, tick_sound)
 
 		tutorial_popup.visible = false
 		if (
@@ -318,21 +314,11 @@ func _on_ground_input_event(
 					if tutorial_step == TutorialStep.LAB:
 						go_to_next_tutorial_step()
 		elif can_sell_building():
-				var asp := AudioStreamPlayer.new()
-				add_child(asp)
-				asp.stream = sell_sound
-				asp.play()
-				asp.finished.connect(func() -> void: asp.queue_free())
-
+				Util.play_sound(self, sell_sound)
 				set_energy(energy + get_sell_value())
 				erase_building(grid_coord)
 		else:
-			var asp := AudioStreamPlayer.new()
-			add_child(asp)
-			asp.stream = building_place_failed_sound
-			asp.play()
-			asp.finished.connect(func() -> void: asp.queue_free())
-
+			Util.play_sound(self, building_place_failed_sound)
 
 
 func _process(delta: float) -> void:
@@ -370,12 +356,7 @@ func start_enemy_spawn_loop() -> void:
 	while true:
 		enemy_spawn_position = random_enemy_spawn_position()
 		warning_label.visible = true
-
-		var asp := AudioStreamPlayer.new()
-		add_child(asp)
-		asp.stream = warning_sound
-		asp.play()
-		asp.finished.connect(func() -> void: asp.queue_free())
+		Util.play_sound(self, warning_sound)
 
 		var enemy_count := roundi(0.6 * pow(wave_index, 1.5) + 2.0)
 		for i in enemy_count:
@@ -776,12 +757,7 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 		var ap: AudioStreamPlaybackPolyphonic = audio_playbacks[rocket]
 		ap.play_stream(rocket_thrust_sound)
 	else:
-		var asp := AudioStreamPlayer3D.new()
-		add_child(asp)
-		asp.position = launchpad.position
-		asp.stream = explosion_sound
-		asp.play()
-		asp.finished.connect(func() -> void: asp.queue_free())
+		Util.play_sound(self, explosion_sound)
 	is_game_over = true
 	hud.visible = false
 	cinematic_bars.visible = true
@@ -828,12 +804,8 @@ func spawn_all_uranium() -> void:
 
 
 func select_building_type(t: BuildingType) -> void:
-	var asp := AudioStreamPlayer.new()
-	add_child(asp)
-	asp.stream = tick_sound
-	asp.play()
-	asp.finished.connect(func() -> void: asp.queue_free())
-				
+	Util.play_sound(self, tick_sound)
+
 	ghost.visible = true
 	no_building_type_selected = false
 	building_type = t
