@@ -38,3 +38,12 @@ Menu Select Tick (CC0) by el_boss via freesound.org.
 Menu Select (Attribution 4.0) by LittleRobotSoundFactory via freesound.org.
 
 Pebble Drop In Cup (CC0) by xxamoney27xx via freesound.org.
+
+Piano and Flute for Suspensefu Criminal Atmosphere (CC0) by Fabio_Martinez via
+freesound.org.
+
+Epic Orchestra Loop (Attribution 4.0) by joshuaempyre via freesound.org.
+
+The Dramatic Music by xtrgamr via freesound.org.
+
+Remix of Vann Westfold Secundo Tempore by Timbre via freesound.org.

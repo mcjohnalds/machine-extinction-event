@@ -1,13 +1,10 @@
-Add start music. Make this intro sound like this
-https://www.youtube.com/watch?v=ATjwFQntE_Q
+Add game music. (piano_and_flute.mp3)
 
-Add game music.
+Add fight music with transition. (epic_orchestra_loop.wav)
 
-Add fight music with transition.
+Add win music. (vann_westfold_secundo_tempore_remix.wav)
 
-Add win music.
-
-Add lose music.
+Add lose music. (the_dramatic_music.wav)
 
 Make sound/music volumes good.
 
@@ -92,3 +89,9 @@ Fix slow game scene load.
 [Unsorted] Give each building an idle sound effect.
 
 [Unsorted] Make sure audio never reaches 0 dB.
+
+[Unsorted] Show intro text in a sequence.
+https://freesound.org/people/CHAKONG/sounds/722633/
+
+[Unsorted] Add loading music
+https://freesound.org/people/Antenalosmusic/sounds/731716/
