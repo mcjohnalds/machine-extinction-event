@@ -2,6 +2,7 @@ class_name Game extends Node3D
 
 signal won
 signal lost
+const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
 const DURATION_BEFORE_FIRST_WAVE := 30.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
@@ -73,9 +74,18 @@ var laser_sounds := [
 	preload("res://laser_9.ogg"),
 	preload("res://laser_10.ogg"),
 ] as Array[AudioStream]
-var building_placed_sound := preload("res://building_placed.ogg")
-var building_completed_sound := preload("res://building_completed.ogg")
-var building_progress_sound := preload("res://forcefield_hum.ogg")
+var building_placed_sound := (
+	preload("res://building_placed.ogg") as AudioStream
+)
+var building_completed_sound := (
+	preload("res://building_completed.ogg") as AudioStream
+)
+var building_progress_sound := (
+	preload("res://forcefield_hum.ogg") as AudioStream
+)
+var building_destroyed_sound := (
+	preload("res://building_collapse_loud.ogg") as AudioStream
+)
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -118,6 +128,7 @@ var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
 var grid_to_building_completion_stream_id := {} # Dictionary[Vector2i, int]
 var audio_playbacks := {} # Dictionary[Node, AudioStreamPlaybackPolyphonic]
+var is_alive := {} # Dictionary[Node, bool]
 var energy := 150
 var science := 0
 var camera_offset := Vector3.ZERO
@@ -153,6 +164,7 @@ func _ready() -> void:
 	grid_to_building_completion_proportion[Vector2i(0, 0)] = 1.0
 	ground.input_event.connect(_on_ground_input_event)
 	add_audio_stream_player(launchpad)
+	is_alive[launchpad] = true
 
 	ghost_turret_ring.scale.x = TURRET_RADIUS * 2.0
 	ghost_turret_ring.scale.z = TURRET_RADIUS * 2.0
@@ -240,6 +252,8 @@ func _on_ground_input_event(
 
 			grid_to_building[grid_coord] = building
 
+			is_alive[building] = true
+
 			grid_to_building_completion_proportion[grid_coord] = 0.0
 			for mesh: MeshInstance3D in (
 				building.find_children("*", "MeshInstance3D", true, false)
@@ -304,20 +318,6 @@ func add_tracer(turret: Node3D, enemy: Node3D) -> void:
 	)
 
 
-func get_nearest_completed_building(pos: Vector3) -> Vector2i:
-	assert(!grid_to_building.is_empty())
-	var nearest_grid_coord: Vector2i = grid_to_building.keys()[0]
-	for grid_coord: Vector2i in grid_to_building:
-		var a: Node3D = grid_to_building[grid_coord]
-		var b: Node3D = grid_to_building[nearest_grid_coord]
-		if (
-			pos.distance_to(a.position) < pos.distance_to(b.position)
-			and grid_to_building_completion_proportion[grid_coord] == 1.0
-		):
-			nearest_grid_coord = grid_coord
-	return nearest_grid_coord
-
-
 func get_time() -> float:
 	return Time.get_ticks_msec() / 1000.0
 
@@ -355,7 +355,10 @@ func start_energy_loop() -> void:
 func get_energy_gain() -> int:
 	var delta_energy := CONSTANT_ENERGY_GAIN
 	for grid_coord: Vector2i in grid_to_building:
-		if grid_to_building_completion_proportion[grid_coord] == 1.0:
+		if (
+			grid_to_building_completion_proportion[grid_coord] == 1.0
+			and is_alive[grid_to_building[grid_coord]]
+		):
 			if (
 				grid_to_building[grid_coord] is Mine
 			):
@@ -381,6 +384,7 @@ func get_science_gain() -> int:
 		if (
 			grid_to_building[grid_coord] is Lab
 			and grid_to_building_completion_proportion[grid_coord] == 1.0
+			and is_alive[grid_to_building[grid_coord]]
 		):
 			gain += 1
 	return gain
@@ -457,6 +461,7 @@ func get_invalid_building_placement_reason() -> String:
 		if (
 			c in grid_to_building
 			and grid_to_building_completion_proportion[c] == 1.0
+			and is_alive[grid_to_building[c]]
 		):
 			has_nearby_building = true
 			break
@@ -485,6 +490,7 @@ func can_sell_building() -> bool:
 		grid_coord in grid_to_building
 		and grid_coord != Vector2i(0, 0)
 		and grid_to_building_completion_proportion[grid_coord] == 1.0
+		and is_alive[grid_to_building[grid_coord]]
 	)
 
 
@@ -530,7 +536,8 @@ func random_enemy_spawn_position() -> Vector3:
 	var max_x := 0.0
 	var min_z := 0.0
 	var max_z := 0.0
-	for building: Node3D in buildings.get_children():
+	for grid_coord: Vector2i in grid_to_building:
+		var building: Node3D = grid_to_building[grid_coord]
 		min_x = minf(min_x, building.position.x)
 		max_x = maxf(min_x, building.position.x)
 		min_z = minf(min_z, building.position.z)
@@ -590,6 +597,8 @@ func erase_building(grid_coord: Vector2i) -> void:
 	building.queue_free()
 	grid_to_building.erase(grid_coord)
 
+	is_alive.erase(building)
+
 	audio_playbacks.erase(building)
 
 	if grid_coord in grid_to_visibility_ring:
@@ -602,10 +611,6 @@ func erase_building(grid_coord: Vector2i) -> void:
 	if grid_coord in grid_to_building_completion_stream_id:
 		grid_to_building_completion_stream_id.erase(grid_coord)
 
-	if grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
-		rocket.queue_free()
-		play_game_over_sequence(GameResult.LOST)
-
 
 func hide_ghost_children() -> void:
 	for child: Node3D in ghost.get_children():
@@ -614,6 +619,8 @@ func hide_ghost_children() -> void:
 
 func process_building(grid_coord: Vector2i, delta: float) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
+	if not is_alive[building]:
+		return
 	var asp: AudioStreamPlaybackPolyphonic = audio_playbacks[building]
 	var gcp := grid_to_building_completion_proportion
 	if gcp[grid_coord] < 1.0:
@@ -670,16 +677,49 @@ func process_rocket(delta: float) -> void:
 
 
 func process_enemy(enemy: Node3D, delta: float) -> void:
-	if grid_to_building.is_empty():
+	var valid_targets := [] as Array[Vector2i]
+	for grid_coord: Vector2i in grid_to_building:
+		if (
+			grid_to_building_completion_proportion[grid_coord] == 1.0
+			and is_alive[grid_to_building[grid_coord]]
+		):
+			valid_targets.append(grid_coord)
+
+	if valid_targets.is_empty():
 		return
-	var grid_coord := get_nearest_completed_building(enemy.position)
-	var nearest_building: Node3D = grid_to_building[grid_coord]
-	enemy.look_at(nearest_building.position, Vector3.UP, true)
+
+	var nearest_grid_coord := valid_targets[0]
+	for grid_coord: Vector2i in grid_to_building:
+		var a: Node3D = grid_to_building[grid_coord]
+		var b: Node3D = grid_to_building[nearest_grid_coord]
+		if (
+			enemy.position.distance_to(a.position)
+			<= enemy.position.distance_to(b.position)
+		):
+			nearest_grid_coord = grid_coord
+	var target: Node3D = grid_to_building[nearest_grid_coord]
+
+	enemy.look_at(target.position, Vector3.UP, true)
 	enemy.position += enemy.basis.z * delta * ENEMY_SPEED
-	if enemy.position.distance_to(nearest_building.position) < 1.0:
+	if enemy.position.distance_to(target.position) < 1.0:
 		enemy.queue_free()
 		enemies_alive -= 1
-		erase_building(grid_coord)
+
+		is_alive[target] = false
+
+		if nearest_grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
+			rocket.queue_free()
+			play_game_over_sequence(GameResult.LOST)
+
+		var ap: AudioStreamPlaybackPolyphonic = (
+			audio_playbacks[target]
+		)
+		ap.play_stream(building_destroyed_sound)
+		(
+			get_tree().create_timer(building_destroyed_sound.get_length())
+		).timeout.connect(func() -> void:
+			erase_building(nearest_grid_coord)
+		)
 
 
 func play_game_over_sequence(game_result: GameResult) -> void:
@@ -790,7 +830,8 @@ func go_to_next_tutorial_step() -> void:
 
 
 func building_exists(t: BuildingType) -> bool:
-	for b in buildings.get_children():
+	for grid_coord: Vector2i in grid_to_building:
+		var b: Node3D = grid_to_building[grid_coord]
 		if (
 			b is Turret and t == BuildingType.TURRET
 			or b is Wall and t == BuildingType.WALL
