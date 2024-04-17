@@ -3,14 +3,16 @@ class_name Game extends Node3D
 signal won
 signal lost
 const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
-const DURATION_BEFORE_FIRST_WAVE := 30.0
+#const DURATION_BEFORE_FIRST_WAVE := 30.0
+const DURATION_BEFORE_FIRST_WAVE := 0.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
 const BUILDING_COMPLETION_DURATION := 20.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
-const ENEMY_SPEED = 1.0
+#const ENEMY_SPEED = 1.0
+const ENEMY_SPEED = 5.0
 const TURRET_DRAIN_PER_SECOND = 1
 const CAMERA_SPEED := 6.0
 const TURRET_SHOOT_COOLDOWN := 2.0
@@ -91,6 +93,9 @@ var enemy_destroyed_sound := (
 )
 var rocket_thrust_sound := (
 	preload("res://rocket_thrust.ogg") as AudioStream
+)
+var explosion_sound := (
+	preload("res://explosion.ogg") as AudioStream
 )
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
@@ -733,6 +738,15 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 	var w := game_result == GameResult.WON
 	if w:
 		is_rocket_taking_off = true
+		var ap: AudioStreamPlaybackPolyphonic = audio_playbacks[rocket]
+		ap.play_stream(rocket_thrust_sound)
+	else:
+		var asp := AudioStreamPlayer3D.new()
+		add_child(asp)
+		asp.position = launchpad.position
+		asp.stream = explosion_sound
+		asp.play()
+		asp.finished.connect(func() -> void: asp.queue_free())
 	is_game_over = true
 	hud.visible = false
 	cinematic_bars.visible = true
@@ -740,9 +754,6 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 	camera.position = camera_offset
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 	Input.set_custom_mouse_cursor(blank_cursor)
-	
-	var ap: AudioStreamPlaybackPolyphonic = audio_playbacks[rocket]
-	ap.play_stream(rocket_thrust_sound)
 
 	await get_tree().create_timer(30.0 if w else 3.0).timeout
 
