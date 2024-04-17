@@ -86,6 +86,9 @@ var building_progress_sound := (
 var building_destroyed_sound := (
 	preload("res://building_collapse_loud.ogg") as AudioStream
 )
+var enemy_destroyed_sound := (
+	preload("res://enemy_destroyed.ogg") as AudioStream
+)
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -660,8 +663,7 @@ func process_building(grid_coord: Vector2i, delta: float) -> void:
 
 			add_tracer(turret, nearest_enemy)
 
-			nearest_enemy.queue_free()
-			enemies_alive -= 1
+			kill_enemy(nearest_enemy)
 
 			var gun := turret.find_child("Gun") as Node3D
 			gun.look_at(nearest_enemy.position, Vector3.UP, true)
@@ -702,8 +704,7 @@ func process_enemy(enemy: Node3D, delta: float) -> void:
 	enemy.look_at(target.position, Vector3.UP, true)
 	enemy.position += enemy.basis.z * delta * ENEMY_SPEED
 	if enemy.position.distance_to(target.position) < 1.0:
-		enemy.queue_free()
-		enemies_alive -= 1
+		kill_enemy(enemy)
 
 		is_alive[target] = false
 
@@ -849,3 +850,18 @@ func add_audio_stream_player(node: Node3D) -> void:
 	node.add_child(asp)
 	asp.play()
 	audio_playbacks[node] = asp.get_stream_playback()
+
+
+func kill_enemy(enemy: Node3D) -> void:
+	enemy.queue_free()
+	enemies_alive -= 1
+
+	var asp := AudioStreamPlayer3D.new()
+	asp.position = enemy.position
+	add_child(asp)
+
+	asp.stream = enemy_destroyed_sound
+	asp.play()
+	asp.finished.connect(func() -> void:
+		asp.queue_free()
+	)

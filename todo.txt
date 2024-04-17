@@ -1,8 +1,3 @@
-Add building destroyed sound effect. (building_collapse05_loud.wav)
-
-Add enemy destoyed sound effect.
-(heavy_big_sci_fi_cinematic_explosion_with_tail.wav)
-
 Add rocket takeoff sound effect. (rocket_loop.wav,
 rocket_boost_engine_loop.wav, looping_thrust.ogg)
 
