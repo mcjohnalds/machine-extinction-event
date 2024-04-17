@@ -89,6 +89,9 @@ var building_destroyed_sound := (
 var enemy_destroyed_sound := (
 	preload("res://enemy_destroyed.ogg") as AudioStream
 )
+var rocket_thrust_sound := (
+	preload("res://rocket_thrust.ogg") as AudioStream
+)
 @onready var ground := $Ground as Area3D
 @onready var ghost := $Ghost as Node3D
 @onready var ghost_turret := $Ghost/Turret as Node3D
@@ -148,6 +151,8 @@ func _ready() -> void:
 	)
 	set_science(science)
 	set_energy(energy)
+
+	add_audio_stream_player(rocket)
 
 	turret_button.pressed.connect(func() -> void:
 		select_building_type(BuildingType.TURRET)
@@ -710,6 +715,7 @@ func process_enemy(enemy: Node3D, delta: float) -> void:
 
 		if nearest_grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
 			rocket.queue_free()
+			audio_playbacks.erase(rocket)
 			play_game_over_sequence(GameResult.LOST)
 
 		var ap: AudioStreamPlaybackPolyphonic = (
@@ -734,13 +740,17 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 	camera.position = camera_offset
 	camera.projection = Camera3D.PROJECTION_PERSPECTIVE
 	Input.set_custom_mouse_cursor(blank_cursor)
-	get_tree().create_timer(30.0 if w else 3.0).timeout.connect(func() -> void:
-		Input.set_custom_mouse_cursor(null)
-		if w:
-			won.emit()
-		else:
-			lost.emit()
-	)
+	
+	var ap: AudioStreamPlaybackPolyphonic = audio_playbacks[rocket]
+	ap.play_stream(rocket_thrust_sound)
+
+	await get_tree().create_timer(30.0 if w else 3.0).timeout
+
+	Input.set_custom_mouse_cursor(null)
+	if w:
+		won.emit()
+	else:
+		lost.emit()
 
 
 func add_uranium(grid_coord: Vector2i) -> void:
