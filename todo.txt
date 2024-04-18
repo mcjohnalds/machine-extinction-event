@@ -1,5 +1,3 @@
-Fix bug where rocket is destroyed before launchpad.
-
 Add building explosion effect.
 
 Add rocket explosion effect.

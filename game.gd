@@ -4,16 +4,14 @@ signal won
 signal lost
 const MAX_URANIUM_SPAWN_DISTANCE := 100
 const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
-#const DURATION_BEFORE_FIRST_WAVE := 30.0
-const DURATION_BEFORE_FIRST_WAVE := 0.0
+const DURATION_BEFORE_FIRST_WAVE := 30.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
 const BUILDING_COMPLETION_DURATION := 20.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
-#const ENEMY_SPEED = 1.0
-const ENEMY_SPEED = 4.0
+const ENEMY_SPEED = 1.0
 const TURRET_DRAIN_PER_SECOND = 1
 const CAMERA_SPEED := 6.0
 const TURRET_SHOOT_COOLDOWN := 2.0
@@ -654,6 +652,10 @@ func erase_building(grid_coord: Vector2i) -> void:
 
 	if grid_coord in grid_to_building_completion_stream_id:
 		grid_to_building_completion_stream_id.erase(grid_coord)
+	
+	if grid_coord == Vector2i(0, 0):
+			rocket.queue_free()
+			audio_playbacks.erase(rocket)
 
 
 func hide_ghost_children() -> void:
@@ -750,8 +752,6 @@ func process_enemy(enemy: Node3D, delta: float) -> void:
 		is_alive[target] = false
 
 		if nearest_grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
-			rocket.queue_free()
-			audio_playbacks.erase(rocket)
 			play_game_over_sequence(GameResult.LOST)
 
 		var ap: AudioStreamPlaybackPolyphonic = (
