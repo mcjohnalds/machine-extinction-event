@@ -4,14 +4,16 @@ signal won
 signal lost
 const MAX_URANIUM_SPAWN_DISTANCE := 100
 const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
-const DURATION_BEFORE_FIRST_WAVE := 30.0
+#const DURATION_BEFORE_FIRST_WAVE := 30.0
+const DURATION_BEFORE_FIRST_WAVE := 0.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
 const BUILDING_COMPLETION_DURATION := 20.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
-const ENEMY_SPEED = 1.0
+#const ENEMY_SPEED = 1.0
+const ENEMY_SPEED = 4.0
 const TURRET_DRAIN_PER_SECOND = 1
 const CAMERA_SPEED := 6.0
 const TURRET_SHOOT_COOLDOWN := 2.0
@@ -730,7 +732,7 @@ func process_enemy(enemy: Node3D, delta: float) -> void:
 		return
 
 	var nearest_grid_coord := valid_targets[0]
-	for grid_coord: Vector2i in grid_to_building:
+	for grid_coord: Vector2i in valid_targets:
 		var a: Node3D = grid_to_building[grid_coord]
 		var b: Node3D = grid_to_building[nearest_grid_coord]
 		if (

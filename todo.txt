@@ -1,4 +1,4 @@
-Fix bug where enemy can fly underground.
+Fix bug where rocket is destroyed before launchpad.
 
 Add building explosion effect.
 
