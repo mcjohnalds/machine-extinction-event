@@ -10,21 +10,31 @@ Add building destroyed effect.
 
 Add building construction effect.
 
-Improve turret shoot effect.
+Add building construction started effect.
+
+Add building construction finished effect.
+
+Add special launchpad destroyed effect.
+
+Add fog and other world effects.
+
+Make colors consistent.
 
 [Breakdown] Make UI pretty.
 
-[Unsorted] Make loading screen/intro sequence interesting. Maybe display rocket with
-launchpad in starting position.
+[Unsorted] Add a particle effect to tracer start position
 
-[Unsorted] Make ground pretty.
+[Unsorted] Make loading screen/intro sequence interesting. Maybe display rocket
+with launchpad in starting position.
+
+[Unsorted] Make ground pretty. Maybe add decals, rocks, shrubs, rubble, etc.
 
 [Unsorted] Make fog of war pretty.
 
 [Unsorted] Fix slow CSGs.
 
-[Unsorted] Warning label position calculation is innacurate. I should convert the enemy
-spawn position to view space then screen space for best results.
+[Unsorted] Warning label position calculation is innacurate. I should convert
+the enemy spawn position to view space then screen space for best results.
 
 [Unsorted] Make mine visible at start of construction process.
 

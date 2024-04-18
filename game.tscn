@@ -57,7 +57,6 @@ far = 500.0
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
 transform = Transform3D(1000, 0, 0, 0, 1000, 0, 0, 0, 1000, 0, 0, 0)
-visible = false
 mesh = SubResource("PlaneMesh_r4355")
 skeleton = NodePath("../..")
 surface_material_override/0 = SubResource("StandardMaterial3D_h7dw4")

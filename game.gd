@@ -4,14 +4,17 @@ signal won
 signal lost
 const MAX_URANIUM_SPAWN_DISTANCE := 100
 const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
-const DURATION_BEFORE_FIRST_WAVE := 30.0
+#const DURATION_BEFORE_FIRST_WAVE := 30.0
+const DURATION_BEFORE_FIRST_WAVE := 0.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
-const BUILDING_COMPLETION_DURATION := 20.0
+#const BUILDING_COMPLETION_DURATION := 20.0
+const BUILDING_COMPLETION_DURATION := 2.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
-const ENEMY_SPEED = 1.0
+#const ENEMY_SPEED = 1.0
+const ENEMY_SPEED = 5.0
 const TURRET_DRAIN_PER_SECOND = 1
 const CAMERA_SPEED := 6.0
 const TURRET_SHOOT_COOLDOWN := 2.0
@@ -352,9 +355,10 @@ func add_tracer(turret: Node3D, enemy: Node3D) -> void:
 	var tracer := tracer_scene.instantiate() as Node3D
 	add_child(tracer)
 	tracer.position = turret.position
+	tracer.position.y += 0.855
 	tracer.look_at(enemy.position, Vector3.UP, true)
 	tracer.scale.z = tracer.position.distance_to(enemy.position)
-	get_tree().create_timer(0.1).timeout.connect(func() -> void:
+	get_tree().create_timer(1.0).timeout.connect(func() -> void:
 		tracer.queue_free()
 	)
 
