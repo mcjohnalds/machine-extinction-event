@@ -14,21 +14,17 @@ Improve turret shoot effect.
 
 [Breakdown] Make UI pretty.
 
-Make loading screen/intro sequence interesting. Maybe display rocket with
+[Unsorted] Make loading screen/intro sequence interesting. Maybe display rocket with
 launchpad in starting position.
 
-[Breakdown] Add UI sound effects.
+[Unsorted] Make ground pretty.
 
-Make ground pretty.
+[Unsorted] Make fog of war pretty.
 
-Make fog of war pretty.
+[Unsorted] Fix slow CSGs.
 
-Fix slow CSGs.
-
-Warning label position calculation is innacurate. I should convert the enemy
+[Unsorted] Warning label position calculation is innacurate. I should convert the enemy
 spawn position to view space then screen space for best results.
-
-Fix slow game scene load.
 
 [Unsorted] Make mine visible at start of construction process.
 

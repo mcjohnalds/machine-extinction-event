@@ -267,7 +267,8 @@ func _on_ground_input_event(
 		roundi(mouse_position_3d.z)
 	)
 
-	if event.is_pressed():
+	var me := event as InputEventMouseButton
+	if me and me.is_pressed() and me.button_index == MOUSE_BUTTON_LEFT:
 		if can_place_building():
 			var building_cost: int = BUILDING_ENERGY_COST[building_type]
 			set_energy(energy - building_cost)
