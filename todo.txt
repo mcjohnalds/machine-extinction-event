@@ -1,4 +1,4 @@
-Make stacked building sounds not overwhelming.
+Fix bug where enemy can fly underground.
 
 Add building explosion effect.
 

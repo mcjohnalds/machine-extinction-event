@@ -152,7 +152,10 @@ var grid_to_building_completion_proportion := {} # Dictionary[Vector2i, float]
 var grid_to_uranium := {} # Dictionary[Vector2i, Node3D]
 var grid_to_visibility_ring := {} # Dictionary[Vector2i, Node3D]
 var grid_to_building_completion_stream_id := {} # Dictionary[Vector2i, int]
+# TODO: I don't need to track both AudioStreamPlaybackPolyphonic and
+# AudioStreamPlayer3D
 var audio_playbacks := {} # Dictionary[Node, AudioStreamPlaybackPolyphonic]
+var audio_stream_players := {} # Dictionary[Node, AudioStreamPlayer3D]
 var is_alive := {} # Dictionary[Node, bool]
 var energy := 150
 var science := 0
@@ -294,6 +297,8 @@ func _on_ground_input_event(
 			buildings.add_child(building)
 
 			add_audio_stream_player(building)
+			var player: AudioStreamPlayer3D = audio_stream_players[building]
+			player.bus = "BuildingProgress"
 			var asp: AudioStreamPlaybackPolyphonic = audio_playbacks[building]
 			asp.play_stream(building_placed_sound)
 			grid_to_building_completion_stream_id[grid_coord] = (
@@ -897,6 +902,7 @@ func add_audio_stream_player(node: Node3D) -> void:
 	node.add_child(asp)
 	asp.play()
 	audio_playbacks[node] = asp.get_stream_playback()
+	audio_stream_players[node] = asp
 
 
 func kill_enemy(enemy: Node3D) -> void:
