@@ -1,4 +1,4 @@
-Add blob shadow.
+Make stacked building sounds not overwhelming.
 
 Add building explosion effect.
 
@@ -31,6 +31,8 @@ Warning label position calculation is innacurate. I should convert the enemy
 spawn position to view space then screen space for best results.
 
 Fix slow game scene load.
+
+[Unsorted] Make mine visible at start of construction process.
 
 [Unsorted] Make sound/music volumes good.
 

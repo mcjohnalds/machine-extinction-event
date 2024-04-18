@@ -1,9 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://2dcbik0xbmcs"]
+[gd_scene load_steps=3 format=3 uid="uid://2dcbik0xbmcs"]
 
 [ext_resource type="PackedScene" uid="uid://ddaw6mkh5lbro" path="res://uranium_glb.tscn" id="1_lqrqb"]
+[ext_resource type="Texture2D" uid="uid://dsftmlp71pqus" path="res://circle_shadow.png" id="2_8v6x0"]
 
 [node name="Uranium" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
 
 [node name="uranium" parent="." instance=ExtResource("1_lqrqb")]
 transform = Transform3D(0.32015, 0, 0, 0, 0.394002, 0, 0, 0, 0.270229, -0.025912, -0.05, -0.0218269)
+
+[node name="Shadow" type="Sprite3D" parent="."]
+transform = Transform3D(0.109073, 0, 0.0881775, 0, 0.157303, 0, -0.0668346, 0, 0.143904, -0.00864768, 0.00244332, -0.0230452)
+modulate = Color(1, 1, 1, 0.537255)
+axis = 1
+texture = ExtResource("2_8v6x0")

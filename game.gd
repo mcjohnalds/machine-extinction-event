@@ -2,6 +2,7 @@ class_name Game extends Node3D
 
 signal won
 signal lost
+const MAX_URANIUM_SPAWN_DISTANCE := 100
 const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
 const DURATION_BEFORE_FIRST_WAVE := 30.0
 const CONSTANT_ENERGY_GAIN := 2
@@ -139,6 +140,9 @@ var building_place_failed_sound := (
 @onready var fog_of_war := $FogOfWar as Node3D
 @onready var launchpad_visibility_ring := $FogOfWar/VisibilityRing as Node3D
 @onready var rocket := $Rocket as Node3D
+@onready var rocket_shadow := (
+	$Buildings/Launchpad/Launchpad/RocketShadow as Sprite3D
+)
 var tutorial_step := TutorialStep.START
 var mouse_position_3d := Vector3.ZERO
 var building_type := BuildingType.TURRET
@@ -194,6 +198,10 @@ func _ready() -> void:
 		ghost.find_children("*", "MeshInstance3D", true, false)
 	):
 		mesh.material_override = player_ghost
+	for shadow: Sprite3D in (
+		ghost.find_children("Shadow", "Sprite3D", true, false)
+	):
+		shadow.visible = false
 
 	start_enemy_spawn_loop()
 	start_energy_loop()
@@ -754,6 +762,7 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 	var w := game_result == GameResult.WON
 	if w:
 		is_rocket_taking_off = true
+		rocket_shadow.visible = false
 		var ap: AudioStreamPlaybackPolyphonic = audio_playbacks[rocket]
 		ap.play_stream(rocket_thrust_sound)
 	else:
@@ -794,8 +803,12 @@ func spawn_all_uranium() -> void:
 		var row: int = arr.pick_random()
 		var col: int = arr.pick_random()
 		add_uranium(Vector2i(row, col))
-	for row in range(-1000, 1000):
-		for col in range(-1000, 1000):
+	for row in (
+		range(-MAX_URANIUM_SPAWN_DISTANCE, MAX_URANIUM_SPAWN_DISTANCE)
+	):
+		for col in (
+			range(-MAX_URANIUM_SPAWN_DISTANCE, MAX_URANIUM_SPAWN_DISTANCE)
+		):
 			var close_to_launchpad := (
 				row > -7 and row < 7 and col > -7 and col < 7
 			)

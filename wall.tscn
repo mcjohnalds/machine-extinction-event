@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://7cjndxgwsyn7"]
+[gd_scene load_steps=4 format=3 uid="uid://7cjndxgwsyn7"]
 
 [ext_resource type="Script" path="res://wall.gd" id="1_ppo31"]
 [ext_resource type="PackedScene" uid="uid://c0troj1fq13ku" path="res://wall_glb.tscn" id="2_lr60y"]
+[ext_resource type="Texture2D" uid="uid://cik7pnty4f8su" path="res://square_shadow.png" id="3_rsifl"]
 
 [node name="Wall" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
@@ -9,3 +10,9 @@ script = ExtResource("1_ppo31")
 
 [node name="Mesh" parent="." instance=ExtResource("2_lr60y")]
 transform = Transform3D(0.155597, 0, 0, 0, 0.131446, 0, 0, 0, 0.155597, 0, 0, 0)
+
+[node name="Shadow" type="Sprite3D" parent="."]
+transform = Transform3D(0.321156, 0, 0, 0, 0.321156, 0, 0, 0, 0.321156, 2.08165e-12, 0.01, 2.08165e-12)
+modulate = Color(1, 1, 1, 0.843137)
+axis = 1
+texture = ExtResource("3_rsifl")

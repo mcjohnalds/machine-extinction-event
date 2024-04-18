@@ -1,8 +1,9 @@
-[gd_scene load_steps=15 format=3 uid="uid://cdl15ju1voxhk"]
+[gd_scene load_steps=16 format=3 uid="uid://cdl15ju1voxhk"]
 
 [ext_resource type="Script" path="res://turret.gd" id="1_m5rth"]
 [ext_resource type="Texture2D" uid="uid://b1q0e8f56t32s" path="res://turret_ao.png" id="2_10l0t"]
 [ext_resource type="Shader" path="res://main.gdshader" id="3_la6w7"]
+[ext_resource type="Texture2D" uid="uid://cik7pnty4f8su" path="res://square_shadow.png" id="4_qiyov"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_in0dd"]
 resource_name = "Material.001"
@@ -197,3 +198,9 @@ skeleton = NodePath("")
 surface_material_override/0 = SubResource("ShaderMaterial_2c1we")
 surface_material_override/1 = SubResource("ShaderMaterial_2c1we")
 surface_material_override/2 = SubResource("ShaderMaterial_2c1we")
+
+[node name="Shadow" type="Sprite3D" parent="."]
+transform = Transform3D(0.280355, 0, 0, 0, 0.280355, 0, 0, 0, 0.280355, 2.08165e-12, 0.01, 2.08165e-12)
+modulate = Color(1, 1, 1, 0.815686)
+axis = 1
+texture = ExtResource("4_qiyov")

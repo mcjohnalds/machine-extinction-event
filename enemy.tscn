@@ -1,8 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://5270ncwd4vaa"]
+[gd_scene load_steps=3 format=3 uid="uid://5270ncwd4vaa"]
 
 [ext_resource type="PackedScene" uid="uid://ctmlo4yjmpgif" path="res://tank_glb.tscn" id="1_5qmbx"]
+[ext_resource type="Texture2D" uid="uid://cik7pnty4f8su" path="res://square_shadow.png" id="2_bvl1n"]
 
 [node name="Enemy" type="Node3D"]
 
 [node name="tank" parent="." instance=ExtResource("1_5qmbx")]
 transform = Transform3D(0.0358894, 0, 0, 0, 0.0358894, 0, 0, 0, 0.0358894, 0, 0, 0)
+
+[node name="Shadow" type="Sprite3D" parent="."]
+transform = Transform3D(0.14677, 0, 0, 0, 0.14677, 0, 0, 0, 0.195991, 2.08165e-12, 0.01, 2.08165e-12)
+modulate = Color(1, 1, 1, 0.666667)
+axis = 1
+texture = ExtResource("2_bvl1n")

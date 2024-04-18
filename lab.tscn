@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://b4f4fhfvuuexk"]
+[gd_scene load_steps=4 format=3 uid="uid://b4f4fhfvuuexk"]
 
 [ext_resource type="Script" path="res://lab.gd" id="1_fa37g"]
 [ext_resource type="PackedScene" uid="uid://j3561eo5ilhx" path="res://lab_glb.tscn" id="2_6kike"]
+[ext_resource type="Texture2D" uid="uid://dsftmlp71pqus" path="res://circle_shadow.png" id="3_rc2a0"]
 
 [node name="Lab" type="Node3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
@@ -9,3 +10,9 @@ script = ExtResource("1_fa37g")
 
 [node name="lab" parent="." instance=ExtResource("2_6kike")]
 transform = Transform3D(0.296576, 0, 0, 0, 0.296576, 0, 0, 0, 0.296576, 2.08165e-12, -0.00129215, 2.08165e-12)
+
+[node name="Shadow" type="Sprite3D" parent="."]
+transform = Transform3D(0.278669, 0, 0, 0, 0.278669, 0, 0, 0, 0.278669, 2.08165e-12, 0.01, 2.08165e-12)
+modulate = Color(1, 1, 1, 0.772549)
+axis = 1
+texture = ExtResource("3_rc2a0")

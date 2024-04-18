@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://gon32otradow"]
+[gd_scene load_steps=7 format=3 uid="uid://gon32otradow"]
 
 [ext_resource type="PackedScene" uid="uid://eopqqhxu1g2s" path="res://launchpad.glb" id="1_uxpnn"]
 [ext_resource type="Shader" path="res://main.gdshader" id="2_nqvaw"]
 [ext_resource type="Texture2D" uid="uid://dxp2wj86xi2ok" path="res://launchpad_ao.png" id="3_eths8"]
+[ext_resource type="Texture2D" uid="uid://cik7pnty4f8su" path="res://square_shadow.png" id="4_m8yjn"]
+[ext_resource type="Texture2D" uid="uid://dsftmlp71pqus" path="res://circle_shadow.png" id="5_1rgmr"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_3fdi2"]
 render_priority = 0
@@ -15,3 +17,15 @@ shader_parameter/texture_albedo = ExtResource("3_eths8")
 
 [node name="Cube" parent="." index="0"]
 surface_material_override/0 = SubResource("ShaderMaterial_3fdi2")
+
+[node name="Shadow" type="Sprite3D" parent="." index="1"]
+transform = Transform3D(0.930563, 0, 0, 0, 0.930563, 0, 0, 0, 0.930563, 2.08165e-12, 0.01, 2.08165e-12)
+modulate = Color(1, 1, 1, 0.858824)
+axis = 1
+texture = ExtResource("4_m8yjn")
+
+[node name="RocketShadow" type="Sprite3D" parent="." index="2"]
+transform = Transform3D(0.302323, 0, 0, 0, 0.275421, 0, 0, 0, 0.275421, -0.139035, 0.86678, 2.08165e-12)
+modulate = Color(1, 1, 1, 0.407843)
+axis = 1
+texture = ExtResource("5_1rgmr")
