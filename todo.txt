@@ -2,8 +2,6 @@ Add rocket explosion effect.
 
 Add rocket takeoff effect.
 
-Add enemy killed effect.
-
 Add building destroyed effect.
 
 Add building construction effect.

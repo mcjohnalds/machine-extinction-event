@@ -3,8 +3,8 @@
 [ext_resource type="Texture2D" uid="uid://b1c4sp6c13pxf" path="res://addons/kenney_particle_pack/smoke_02.png" id="1_v2gk8"]
 
 [sub_resource type="Curve" id="Curve_62l2o"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.1, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.1, 1), 0.0, 0.0, 0, 0, Vector2(0.7, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
 metadata/_snap_enabled = true
 
 [sub_resource type="CurveTexture" id="CurveTexture_guv2k"]
@@ -18,7 +18,7 @@ point_count = 2
 curve = SubResource("Curve_usvom")
 
 [sub_resource type="Curve" id="Curve_a8dx2"]
-_data = [Vector2(0, 0.219331), 0.0, 2.73298, 0, 0, Vector2(0.317073, 0.784387), 1.2124, 1.2124, 0, 0, Vector2(1, 1), 0.0622104, 0.0, 0, 0]
+_data = [Vector2(0, 0.219331), 0.0, 2.73298, 0, 0, Vector2(0.0926829, 0.918216), 0.299835, 0.299835, 0, 0, Vector2(1, 1), 0.0622104, 0.0, 0, 0]
 point_count = 3
 
 [sub_resource type="CurveTexture" id="CurveTexture_bgttg"]
@@ -31,12 +31,14 @@ emission_shape_scale = Vector3(0.3, 0.3, 0.3)
 emission_shape = 1
 emission_sphere_radius = 1.0
 angle_max = 360.0
+spread = 180.0
+initial_velocity_max = 0.3
 angular_velocity_min = 30.0
 angular_velocity_max = 30.0
 radial_velocity_max = 1.0
 radial_velocity_curve = SubResource("CurveTexture_cxvf4")
-gravity = Vector3(2.08165e-12, 1, 2.08165e-12)
-radial_accel_max = 0.3
+gravity = Vector3(2.08165e-12, 0.5, 2.08165e-12)
+radial_accel_max = 0.2
 tangential_accel_max = 0.3
 damping_min = 1.0
 damping_max = 1.0
@@ -45,6 +47,8 @@ scale_curve = SubResource("CurveTexture_bgttg")
 alpha_curve = SubResource("CurveTexture_guv2k")
 hue_variation_max = 0.01
 turbulence_enabled = true
+turbulence_noise_strength = 0.5
+turbulence_noise_scale = 7.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tj52k"]
 transparency = 1
@@ -66,8 +70,9 @@ size = Vector2(2, 2)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 emitting = false
 amount = 30
+lifetime = 2.0
 one_shot = true
-explosiveness = 0.76
+explosiveness = 0.92
 randomness = 1.0
 process_material = SubResource("ParticleProcessMaterial_lbfk8")
 draw_pass_1 = SubResource("QuadMesh_t8cnv")

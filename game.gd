@@ -59,6 +59,9 @@ const BUILDING_ENERGY_SELL_VALUE := {
 var building_destroyed_smoke_scene := (
 	preload("res://building_destroyed_smoke.tscn")
 )
+var enemy_explosion_scene := (
+	preload("res://enemy_explosion.tscn")
+)
 var turret_scene := preload("res://turret.tscn")
 var wall_scene := preload("res://wall.tscn")
 var lab_scene := preload("res://lab.tscn")
@@ -683,7 +686,7 @@ func hide_ghost_children() -> void:
 func process_building(grid_coord: Vector2i, delta: float) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
 	if not is_alive[building]:
-		building.position.y -= delta
+		building.position.y -= delta * 0.5
 		building.rotation.x -= (
 			building_fall_direction[building].x * delta * 0.2
 		)
@@ -785,9 +788,8 @@ func process_enemy(enemy: Node3D, delta: float) -> void:
 		smoke.position = target.position
 		add_child(smoke)
 		smoke.emitting = true
-		smoke.finished.connect(func() -> void:
-			smoke.queue_free()
-		)
+		get_tree().create_timer(smoke.lifetime) \
+			.timeout.connect(smoke.queue_free.bind())
 
 		var ap: AudioStreamPlaybackPolyphonic = (
 			audio_playbacks[target]
@@ -955,3 +957,15 @@ func kill_enemy(enemy: Node3D) -> void:
 	asp.finished.connect(func() -> void:
 		asp.queue_free()
 	)
+
+	var explosion := enemy_explosion_scene.instantiate() as Node3D
+	explosion.position = enemy.position
+	var max_lifetime := 0.0
+	for child: GPUParticles3D in explosion.get_children():
+		max_lifetime = maxf(max_lifetime, child.lifetime)
+		child.emitting = true
+
+	get_tree().create_timer(max_lifetime * 2.0).timeout.connect(
+		func() -> void: explosion.queue_free()
+	)
+	add_child(explosion)

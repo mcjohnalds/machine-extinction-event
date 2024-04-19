@@ -2,8 +2,8 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b8xtwqkhcxd0g"
-path.s3tc="res://.godot/imported/flame_03.png-aa573b91da2c8daf70550680d9f23b7b.s3tc.ctex"
+uid="uid://c8i4bi5i8wv2f"
+path.s3tc="res://.godot/imported/explosion_atlas.png-06a6fa55b25eb50012128c3622b6c975.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/kenney_particle_pack/flame_03.png"
-dest_files=["res://.godot/imported/flame_03.png-aa573b91da2c8daf70550680d9f23b7b.s3tc.ctex"]
+source_file="res://explosion_atlas.png"
+dest_files=["res://.godot/imported/explosion_atlas.png-06a6fa55b25eb50012128c3622b6c975.s3tc.ctex"]
 
 [params]
 
