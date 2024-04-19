@@ -9,7 +9,8 @@ const DURATION_BEFORE_FIRST_WAVE := 0.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
-const SCIENCE_REQUIRED_TO_LAUNCH := 5000
+#const SCIENCE_REQUIRED_TO_LAUNCH := 5000
+const SCIENCE_REQUIRED_TO_LAUNCH := 2
 #const BUILDING_COMPLETION_DURATION := 20.0
 const BUILDING_COMPLETION_DURATION := 2.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
@@ -673,7 +674,7 @@ func erase_building(grid_coord: Vector2i) -> void:
 	if grid_coord in grid_to_building_completion_stream_id:
 		grid_to_building_completion_stream_id.erase(grid_coord)
 	
-	if grid_coord == Vector2i(0, 0):
+	if grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
 			rocket.queue_free()
 			audio_playbacks.erase(rocket)
 
@@ -809,6 +810,13 @@ func play_game_over_sequence(game_result: GameResult) -> void:
 		rocket_shadow.visible = false
 		var ap: AudioStreamPlaybackPolyphonic = audio_playbacks[rocket]
 		ap.play_stream(rocket_thrust_sound)
+
+		var rocket_effects := rocket.find_child("Effects", true, false) as Node3D
+		rocket_effects.visible = true
+		for effect: Node3D in rocket_effects.get_children():
+			if effect is GPUParticles3D:
+				var g := effect as GPUParticles3D
+				g.emitting = true
 	else:
 		Util.play_sound(self, explosion_sound)
 	is_game_over = true

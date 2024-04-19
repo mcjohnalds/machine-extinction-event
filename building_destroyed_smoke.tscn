@@ -1,6 +1,6 @@
 [gd_scene load_steps=11 format=3 uid="uid://b4cygp3ibycma"]
 
-[ext_resource type="Texture2D" uid="uid://b1c4sp6c13pxf" path="res://addons/kenney_particle_pack/smoke_02.png" id="1_v2gk8"]
+[ext_resource type="Texture2D" uid="uid://bs6kkaisqeedp" path="res://addons/kenney_particle_pack/smoke_03.png" id="1_q1ut8"]
 
 [sub_resource type="Curve" id="Curve_62l2o"]
 _data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.1, 1), 0.0, 0.0, 0, 0, Vector2(0.7, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -55,7 +55,7 @@ transparency = 1
 shading_mode = 0
 vertex_color_use_as_albedo = true
 albedo_color = Color(0.831373, 0.776471, 0.717647, 1)
-albedo_texture = ExtResource("1_v2gk8")
+albedo_texture = ExtResource("1_q1ut8")
 billboard_mode = 3
 billboard_keep_scale = true
 particles_anim_h_frames = 1
@@ -74,5 +74,6 @@ lifetime = 2.0
 one_shot = true
 explosiveness = 0.92
 randomness = 1.0
+fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_lbfk8")
 draw_pass_1 = SubResource("QuadMesh_t8cnv")

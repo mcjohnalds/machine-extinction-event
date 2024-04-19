@@ -123,6 +123,7 @@ func fade_in_asp(asp: AudioStreamPlayer, delta: float) -> void:
 	var dv := MIN_VOLUME / MUSIC_TRANSITION_TIME * delta
 	asp.volume_db = minf(asp.volume_db - dv, 0.0)
 
+
 func fade_in_from_start_asp(asp: AudioStreamPlayer, delta: float) -> void:
 	if asp.volume_db == MIN_VOLUME:
 		asp.seek(0.0)

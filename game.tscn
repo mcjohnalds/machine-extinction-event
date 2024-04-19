@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=18 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_a4s7c"]
 [ext_resource type="PackedScene" uid="uid://cdl15ju1voxhk" path="res://turret.tscn" id="2_i6sex"]
@@ -21,6 +21,10 @@ sky_material = SubResource("ProceduralSkyMaterial_hfirg")
 background_mode = 2
 sky = SubResource("Sky_2wcm7")
 tonemap_mode = 2
+tonemap_white = 0.68
+fog_enabled = true
+fog_density = 0.001
+fog_height_density = -0.1448
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_r4355"]
 
@@ -36,6 +40,10 @@ size = Vector3(2000, 1, 2000)
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3omxf"]
 shading_mode = 0
 albedo_color = Color(0.172549, 0.172549, 0.172549, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_who07"]
+shading_mode = 0
+albedo_color = Color(0.4, 0.4, 0.4, 1)
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_a4s7c")
@@ -93,6 +101,10 @@ visible = false
 
 [node name="Enemies" type="Node" parent="."]
 
+[node name="GPUParticlesCollisionBox3D" type="GPUParticlesCollisionBox3D" parent="."]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0.141861, 0)
+size = Vector3(0.758789, 0.250763, 0.756836)
+
 [node name="Buildings" type="Node" parent="."]
 
 [node name="Launchpad" type="Node3D" parent="Buildings"]
@@ -115,6 +127,7 @@ operation = 2
 radius = 7.0
 height = 3.0
 smooth_faces = false
+material = SubResource("StandardMaterial3D_who07")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

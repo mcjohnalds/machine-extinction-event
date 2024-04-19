@@ -196,6 +196,8 @@ lifetime = 2.0
 one_shot = true
 explosiveness = 0.53
 randomness = 1.0
+fixed_fps = 60
+visibility_aabb = AABB(-2.23397, -2.12489, -2.15267, 72.7193, 31.0025, 71.7654)
 process_material = SubResource("ParticleProcessMaterial_k4ish")
 draw_pass_1 = SubResource("QuadMesh_s3sqf")
 
@@ -205,6 +207,7 @@ emitting = false
 amount = 1
 lifetime = 0.5
 one_shot = true
+fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_3orxr")
 draw_pass_1 = SubResource("QuadMesh_aa22m")
 
@@ -216,6 +219,7 @@ lifetime = 0.5
 one_shot = true
 explosiveness = 1.0
 randomness = 1.0
+fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_hgko8")
 draw_pass_1 = SubResource("QuadMesh_ayuc2")
 

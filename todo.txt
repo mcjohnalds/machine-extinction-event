@@ -1,22 +1,22 @@
-Add rocket explosion effect.
+Fix shader compilation stutter (run with no cache).
 
-Add rocket takeoff effect.
-
-Add building destroyed effect.
-
-Add building construction effect.
-
-Add building construction started effect.
-
-Add building construction finished effect.
-
-Add special launchpad destroyed effect.
-
-Add fog and other world effects.
+[Breakdown] Make UI pretty.
 
 Make colors consistent.
 
-[Breakdown] Make UI pretty.
+Testing and tweaking game logic.
+
+Final release.
+
+[Unsorted] Make horizon look better.
+
+[Unsorted] Add building construction effect.
+
+[Unsorted] Add building construction started effect.
+
+[Unsorted] Add building construction finished effect.
+
+[Unsorted] Add special launchpad destroyed effect.
 
 [Unsorted] Make building destroyed effect more visually interesting.
 
