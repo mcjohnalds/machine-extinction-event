@@ -1,5 +1,3 @@
-Add building explosion effect.
-
 Add rocket explosion effect.
 
 Add rocket takeoff effect.
@@ -21,6 +19,8 @@ Add fog and other world effects.
 Make colors consistent.
 
 [Breakdown] Make UI pretty.
+
+[Unsorted] Make building destroyed effect more visually interesting.
 
 [Unsorted] Add a particle effect to tracer start position
 

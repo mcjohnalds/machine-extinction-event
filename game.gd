@@ -56,6 +56,9 @@ const BUILDING_ENERGY_SELL_VALUE := {
 	BuildingType.MINE: 25,
 	BuildingType.LAB: 50,
 }
+var building_destroyed_smoke_scene := (
+	preload("res://building_destroyed_smoke.tscn")
+)
 var turret_scene := preload("res://turret.tscn")
 var wall_scene := preload("res://wall.tscn")
 var lab_scene := preload("res://lab.tscn")
@@ -159,6 +162,7 @@ var grid_to_building_completion_stream_id := {} # Dictionary[Vector2i, int]
 # AudioStreamPlayer3D
 var audio_playbacks := {} # Dictionary[Node, AudioStreamPlaybackPolyphonic]
 var audio_stream_players := {} # Dictionary[Node, AudioStreamPlayer3D]
+var building_fall_direction := {} # Dictionary[Node, Vector2]
 var is_alive := {} # Dictionary[Node, bool]
 var energy := 150
 var science := 0
@@ -197,6 +201,9 @@ func _ready() -> void:
 	ground.input_event.connect(_on_ground_input_event)
 	add_audio_stream_player(launchpad)
 	is_alive[launchpad] = true
+	building_fall_direction[launchpad] = Vector2(
+		randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)
+	).normalized()
 
 	ghost_turret_ring.scale.x = TURRET_RADIUS * 2.0
 	ghost_turret_ring.scale.z = TURRET_RADIUS * 2.0
@@ -288,6 +295,10 @@ func _on_ground_input_event(
 				0.0,
 				roundi(mouse_position_3d.z)
 			)
+
+			building_fall_direction[building] = Vector2(
+				randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)
+			).normalized()
 
 			grid_to_building[grid_coord] = building
 
@@ -643,6 +654,7 @@ func erase_building(grid_coord: Vector2i) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
 	building.queue_free()
 	grid_to_building.erase(grid_coord)
+	building_fall_direction.erase(grid_coord)
 
 	is_alive.erase(building)
 
@@ -671,6 +683,13 @@ func hide_ghost_children() -> void:
 func process_building(grid_coord: Vector2i, delta: float) -> void:
 	var building: Node3D = grid_to_building[grid_coord]
 	if not is_alive[building]:
+		building.position.y -= delta
+		building.rotation.x -= (
+			building_fall_direction[building].x * delta * 0.2
+		)
+		building.rotation.z -= (
+			building_fall_direction[building].y * delta * 0.2
+		)
 		return
 	var asp: AudioStreamPlaybackPolyphonic = audio_playbacks[building]
 	var gcp := grid_to_building_completion_proportion
@@ -757,7 +776,18 @@ func process_enemy(enemy: Node3D, delta: float) -> void:
 		is_alive[target] = false
 
 		if nearest_grid_coord == Vector2i(0, 0) and not is_rocket_taking_off:
+			rocket.reparent(launchpad)
 			play_game_over_sequence(GameResult.LOST)
+
+		var smoke := (
+			building_destroyed_smoke_scene.instantiate() as GPUParticles3D
+		)
+		smoke.position = target.position
+		add_child(smoke)
+		smoke.emitting = true
+		smoke.finished.connect(func() -> void:
+			smoke.queue_free()
+		)
 
 		var ap: AudioStreamPlaybackPolyphonic = (
 			audio_playbacks[target]

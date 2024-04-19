@@ -47,3 +47,5 @@ Epic Orchestra Loop (Attribution 4.0) by joshuaempyre via freesound.org.
 The Dramatic Music by xtrgamr via freesound.org.
 
 Remix of Vann Westfold Secundo Tempore by Timbre via freesound.org.
+
+Kenny's Particle Pack (CC0) by Kenny.
