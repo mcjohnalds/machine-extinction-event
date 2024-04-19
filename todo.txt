@@ -1,5 +1,3 @@
-Fix shader compilation stutter (run with no cache).
-
 [Breakdown] Make UI pretty.
 
 Make colors consistent.

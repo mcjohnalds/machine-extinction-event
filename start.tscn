@@ -4,6 +4,12 @@
 layout_mode = 3
 anchors_preset = 0
 
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 2409.0
+offset_bottom = 1602.0
+color = Color(0.301961, 0.301961, 0.301961, 1)
+
 [node name="Label" type="Label" parent="."]
 layout_mode = 0
 offset_top = 330.0

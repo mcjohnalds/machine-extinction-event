@@ -27,12 +27,12 @@ curve = SubResource("Curve_a8dx2")
 [sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_lbfk8"]
 lifetime_randomness = 0.35
 particle_flag_damping_as_friction = true
-emission_shape_scale = Vector3(0.3, 0.3, 0.3)
+emission_shape_scale = Vector3(0.1, 0.1, 0.1)
 emission_shape = 1
 emission_sphere_radius = 1.0
 angle_max = 360.0
 spread = 180.0
-initial_velocity_max = 0.3
+initial_velocity_max = 0.2
 angular_velocity_min = 30.0
 angular_velocity_max = 30.0
 radial_velocity_max = 1.0
@@ -64,12 +64,12 @@ particles_anim_loop = false
 
 [sub_resource type="QuadMesh" id="QuadMesh_t8cnv"]
 material = SubResource("StandardMaterial3D_tj52k")
-size = Vector2(2, 2)
+size = Vector2(2.5, 2.5)
 
 [node name="BuildingDestroyedSmoke" type="GPUParticles3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
 emitting = false
-amount = 30
+amount = 50
 lifetime = 2.0
 one_shot = true
 explosiveness = 0.92

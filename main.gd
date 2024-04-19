@@ -6,6 +6,7 @@ var game_scene := preload("res://game.tscn")
 var start_scene := preload("res://start.tscn")
 var won_scene := preload("res://won.tscn")
 var lost_scene := preload("res://lost.tscn")
+var shader_precompilation_scene := preload("res://shader_precompilation.tscn")
 var button_press_sound := (
 	preload("res://menu_select.ogg") as AudioStream
 )
@@ -29,6 +30,14 @@ var game: Game
 
 
 func _ready() -> void:
+	# Precompile shaders, user can't see this
+	var precomp := shader_precompilation_scene.instantiate()
+	for particle: GPUParticles3D in (
+		precomp.find_children("*", "GPUParticles3D", true, true)
+	):
+		particle.emitting = true
+	add_child(precomp)
+
 	var start := start_scene.instantiate()
 	var button := start.get_node("Button") as Button
 	button.pressed.connect(on_start_button_pressed)
