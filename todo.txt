@@ -1,7 +1,3 @@
-[Breakdown] Make UI pretty.
-
-Make colors consistent.
-
 Testing and tweaking game logic.
 
 Final testing.
@@ -11,6 +7,8 @@ Fill out itch.io page
 Fill out gtihub.
 
 Final release.
+
+[Unsorted] Make colors consistent.
 
 [Unsorted] Make horizon look better.
 

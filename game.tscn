@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://ca5w6pligjaeb"]
+[gd_scene load_steps=26 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_a4s7c"]
 [ext_resource type="Environment" uid="uid://cqmoy0r82ot7m" path="res://environment.tres" id="2_e0ao0"]
@@ -11,6 +11,10 @@
 [ext_resource type="PackedScene" uid="uid://b4f4fhfvuuexk" path="res://lab.tscn" id="6_o3p7i"]
 [ext_resource type="PackedScene" uid="uid://gon32otradow" path="res://launchpad.tscn" id="7_0d0ja"]
 [ext_resource type="PackedScene" uid="uid://dg70iflasqw5v" path="res://space_shuttle.tscn" id="9_2qjoc"]
+[ext_resource type="Texture2D" uid="uid://dnngxtfeblhbd" path="res://turret_wireframe.png" id="12_b1sfu"]
+[ext_resource type="Texture2D" uid="uid://c2sdexgkc0au3" path="res://wall_wireframe.png" id="13_ijeid"]
+[ext_resource type="Texture2D" uid="uid://ck8iann11ibof" path="res://mine_wireframe.png" id="14_y0a1i"]
+[ext_resource type="Texture2D" uid="uid://2rhu3t1b343d" path="res://lab_wireframe.png" id="15_1bofk"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_r4355"]
 
@@ -150,13 +154,20 @@ texture = SubResource("GradientTexture2D_y4no7")
 [node name="Background" type="ColorRect" parent="HUD"]
 offset_right = 120.0
 offset_bottom = 800.0
-color = Color(0.301961, 0.301961, 0.301961, 1)
+color = Color(0.219608, 0.219608, 0.219608, 1)
+
+[node name="Background2" type="ColorRect" parent="HUD"]
+offset_left = 120.0
+offset_right = 122.0
+offset_bottom = 800.0
+color = Color(0.156863, 0.156863, 0.156863, 1)
 
 [node name="EnergyLabel" type="Label" parent="HUD"]
 offset_left = 10.0
 offset_top = 470.0
 offset_right = 90.0
 offset_bottom = 493.0
+theme_override_constants/outline_size = 0
 text = "Energy: 0"
 
 [node name="EnergyDeltaLabel" type="Label" parent="HUD"]
@@ -164,6 +175,7 @@ offset_left = 10.0
 offset_top = 510.0
 offset_right = 120.0
 offset_bottom = 570.0
+theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
 text = "+1234 energy"
 autowrap_mode = 3
@@ -173,6 +185,7 @@ offset_left = 10.0
 offset_top = 530.0
 offset_right = 110.0
 offset_bottom = 560.0
+theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
 text = "per second"
 autowrap_mode = 3
@@ -182,6 +195,7 @@ offset_left = 10.0
 offset_top = 600.0
 offset_right = 90.0
 offset_bottom = 623.0
+theme_override_constants/outline_size = 0
 text = "Science: 0"
 
 [node name="ScienceDeltaLabel" type="Label" parent="HUD"]
@@ -189,6 +203,7 @@ offset_left = 10.0
 offset_top = 640.0
 offset_right = 120.0
 offset_bottom = 700.0
+theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
 text = "+1234 science"
 autowrap_mode = 3
@@ -198,6 +213,7 @@ offset_left = 10.0
 offset_top = 660.0
 offset_right = 110.0
 offset_bottom = 690.0
+theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
 text = "per second"
 autowrap_mode = 3
@@ -207,6 +223,7 @@ offset_left = 10.0
 offset_top = 730.0
 offset_right = 120.0
 offset_bottom = 790.0
+theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
 text = "1234 science required to launch rocket"
 autowrap_mode = 3
@@ -216,45 +233,85 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 110.0
 offset_bottom = 100.0
-text = "Turret"
 
 [node name="WallButton" type="Button" parent="HUD"]
 offset_left = 10.0
 offset_top = 110.0
 offset_right = 110.0
 offset_bottom = 200.0
-text = "Wall"
 
 [node name="MineButton" type="Button" parent="HUD"]
 offset_left = 10.0
 offset_top = 210.0
 offset_right = 110.0
 offset_bottom = 300.0
-text = "Mine"
 
 [node name="LabButton" type="Button" parent="HUD"]
 offset_left = 10.0
 offset_top = 310.0
 offset_right = 110.0
 offset_bottom = 400.0
-text = "Lab"
 
 [node name="TurretShortcut" type="Label" parent="HUD"]
-offset_left = 36.0
-offset_top = 80.0
-offset_right = 136.0
-offset_bottom = 110.0
+offset_left = 41.0
+offset_top = 81.0
+offset_right = 141.0
+offset_bottom = 111.0
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
 text = "Shortcut: 1"
 autowrap_mode = 3
 
+[node name="TurretShortcut2" type="Label" parent="HUD"]
+offset_left = 14.0
+offset_top = 9.0
+offset_right = 114.0
+offset_bottom = 39.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 16
+text = "Turret"
+autowrap_mode = 3
+
+[node name="TurretShortcut3" type="Label" parent="HUD"]
+offset_left = 14.0
+offset_top = 108.0
+offset_right = 114.0
+offset_bottom = 138.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 16
+text = "Wall"
+autowrap_mode = 3
+
+[node name="TurretShortcut4" type="Label" parent="HUD"]
+offset_left = 14.0
+offset_top = 209.0
+offset_right = 114.0
+offset_bottom = 239.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 16
+text = "Mine"
+autowrap_mode = 3
+
+[node name="TurretShortcut5" type="Label" parent="HUD"]
+offset_left = 14.0
+offset_top = 308.0
+offset_right = 114.0
+offset_bottom = 338.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_constants/outline_size = 0
+theme_override_font_sizes/font_size = 16
+text = "Lab"
+autowrap_mode = 3
+
 [node name="WallShortcut" type="Label" parent="HUD"]
-offset_left = 36.0
-offset_top = 180.0
-offset_right = 136.0
-offset_bottom = 210.0
+offset_left = 38.0
+offset_top = 181.0
+offset_right = 138.0
+offset_bottom = 211.0
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
@@ -262,10 +319,10 @@ text = "Shortcut: 2"
 autowrap_mode = 3
 
 [node name="MineShortcut" type="Label" parent="HUD"]
-offset_left = 36.0
-offset_top = 280.0
-offset_right = 136.0
-offset_bottom = 310.0
+offset_left = 38.0
+offset_top = 281.0
+offset_right = 138.0
+offset_bottom = 311.0
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
@@ -273,10 +330,10 @@ text = "Shortcut: 3"
 autowrap_mode = 3
 
 [node name="LabShortcut" type="Label" parent="HUD"]
-offset_left = 36.0
-offset_top = 380.0
-offset_right = 136.0
-offset_bottom = 410.0
+offset_left = 38.0
+offset_top = 381.0
+offset_right = 138.0
+offset_bottom = 411.0
 theme_override_colors/font_color = Color(0.701961, 0.701961, 0.701961, 1)
 theme_override_constants/outline_size = 0
 theme_override_font_sizes/font_size = 13
@@ -291,12 +348,48 @@ text = "Enemies approaching!"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="TurretIcon" type="TextureRect" parent="HUD"]
+offset_left = 10.0
+offset_top = 35.0
+offset_right = 110.0
+offset_bottom = 79.0
+texture = ExtResource("12_b1sfu")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WallIcon" type="TextureRect" parent="HUD"]
+offset_left = 10.0
+offset_top = 135.0
+offset_right = 110.0
+offset_bottom = 179.0
+texture = ExtResource("13_ijeid")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WallIcon2" type="TextureRect" parent="HUD"]
+offset_left = 10.0
+offset_top = 240.0
+offset_right = 110.0
+offset_bottom = 274.0
+texture = ExtResource("14_y0a1i")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WallIcon3" type="TextureRect" parent="HUD"]
+offset_left = 10.0
+offset_top = 336.0
+offset_right = 110.0
+offset_bottom = 374.0
+texture = ExtResource("15_1bofk")
+expand_mode = 1
+stretch_mode = 5
+
 [node name="TutorialPopup" type="ColorRect" parent="HUD"]
-visible = false
 offset_left = 140.0
 offset_top = 6.0
 offset_right = 390.0
 offset_bottom = 106.0
+color = Color(0.952941, 0.952941, 0.952941, 1)
 
 [node name="Label" type="Label" parent="HUD/TutorialPopup"]
 layout_mode = 0
@@ -304,10 +397,13 @@ offset_left = 10.0
 offset_top = 10.0
 offset_right = 240.0
 offset_bottom = 90.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 0
 text = "Tutorial text"
 autowrap_mode = 3
 
 [node name="Polygon2D" type="Polygon2D" parent="HUD/TutorialPopup"]
+color = Color(0.952941, 0.952941, 0.952941, 1)
 polygon = PackedVector2Array(0, 100, -20, 50, 0, 0)
 
 [node name="Button" type="Button" parent="HUD/TutorialPopup"]
