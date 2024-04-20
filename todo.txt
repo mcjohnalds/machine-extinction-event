@@ -8,6 +8,8 @@ Fill out gtihub.
 
 Final release.
 
+[Unsorted] Scripted sequence on win where enemy destroys base.
+
 [Unsorted] Make colors consistent.
 
 [Unsorted] Make horizon look better.

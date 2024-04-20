@@ -74,8 +74,12 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if preview_spinner:
-		preview_spinner.rotation.y = 0.1 + sin(Util.time() * 0.17) * 0.002 * TAU
-		preview_spinner.position.y = 0.01 + sin(Util.time() * 0.15) * 0.01
+		preview_spinner.rotation.y = (
+			0.1 + sin(Util.time() * 0.17) * 0.002 * TAU
+		)
+		preview_spinner.position.y = (
+			0.01 + sin(Util.time() * 0.15) * 0.01
+		)
 	if game and game.enemies_alive > 0 and not game.is_game_over:
 		fade_out_asp(game_music_asp, delta)
 		fade_in_from_start_asp(fight_music_asp, delta)
@@ -149,4 +153,5 @@ func fade_in_asp(asp: AudioStreamPlayer, delta: float) -> void:
 func fade_in_from_start_asp(asp: AudioStreamPlayer, delta: float) -> void:
 	if asp.volume_db == MIN_VOLUME:
 		asp.seek(0.0)
+		asp.play()
 	fade_in_asp(asp, delta)
