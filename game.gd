@@ -2,10 +2,10 @@ class_name Game extends Node3D
 
 signal won
 signal lost
+const DURATION_BETWEEN_WAVES := 90.0
 const MAX_URANIUM_SPAWN_DISTANCE := 100
-const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
-const DURATION_BEFORE_FIRST_WAVE := 30.0
-const CONSTANT_ENERGY_GAIN := 2
+const DURATION_BEFORE_FIRST_WAVE := 50.0
+const CONSTANT_ENERGY_GAIN := 5
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
 const SCIENCE_REQUIRED_TO_LAUNCH := 5000
@@ -20,15 +20,16 @@ const GHOST_VALID := Color("5d8fba7f")
 const GHOST_INVALID := Color("37546e3e")
 enum GameResult {WON, LOST}
 enum BuildingType {TURRET, WALL, MINE, LAB}
-enum TutorialStep {START, TURRET, WALL, ENERGY, MINE, SCIENCE, LAB, END}
+enum TutorialStep {START, TURRET, WALL, ENERGY, MINE, SCIENCE, LAB, SELL, END}
 const TUTORIAL_TEXT_FOR_STEP := {
 	TutorialStep.START: "",
-	TutorialStep.TURRET: "Build a turret to defend your base",
-	TutorialStep.WALL: "Build a wall to defend your base",
+	TutorialStep.TURRET: "Build a turret to defend your base and see further",
+	TutorialStep.WALL: "Build a wall to defend and expand your base",
 	TutorialStep.ENERGY: "Be mindful of your energy",
 	TutorialStep.MINE: "Build a uranium mine to gain energy",
 	TutorialStep.SCIENCE: "Gain enough science to escape earth",
 	TutorialStep.LAB: "Build a lab to gain science",
+	TutorialStep.SELL: "Click on buildings to sell them",
 	TutorialStep.END: ""
 }
 const TUTORIAL_POPUP_Y_FOR_STEP := {
@@ -39,19 +40,20 @@ const TUTORIAL_POPUP_Y_FOR_STEP := {
 	TutorialStep.MINE: 206,
 	TutorialStep.SCIENCE: 693,
 	TutorialStep.LAB: 306,
+	TutorialStep.SELL: 433,
 	TutorialStep.END: 0
 }
 const BUILDING_ENERGY_COST := {
-	BuildingType.TURRET: 50,
+	BuildingType.TURRET: 100,
+	BuildingType.WALL: 20,
+	BuildingType.MINE: 100,
+	BuildingType.LAB: 200,
+}
+const BUILDING_ENERGY_SELL_VALUE := {
+	BuildingType.TURRET: 100,
 	BuildingType.WALL: 10,
 	BuildingType.MINE: 50,
 	BuildingType.LAB: 100,
-}
-const BUILDING_ENERGY_SELL_VALUE := {
-	BuildingType.TURRET: 25,
-	BuildingType.WALL: 5,
-	BuildingType.MINE: 25,
-	BuildingType.LAB: 50,
 }
 var building_destroyed_smoke_scene := (
 	preload("res://building_destroyed_smoke.tscn")
@@ -141,6 +143,9 @@ var building_place_failed_sound := (
 @onready var tutorial_popup := $HUD/TutorialPopup as Control
 @onready var tutorial_popup_label := $HUD/TutorialPopup/Label as Label
 @onready var tutorial_popup_button := $HUD/TutorialPopup/Button as Button
+@onready var tip_popup := $HUD/TipPopup as Control
+@onready var tip_popup_label := $HUD/TipPopup/Label as Label
+@onready var tip_popup_button := $HUD/TipPopup/Button as Button
 @onready var cinematic_bars := $CinematicBars as CanvasLayer
 @onready var camera := $Camera3D as Camera3D
 @onready var fog_of_war := $FogOfWar as Node3D
@@ -164,7 +169,7 @@ var audio_playbacks := {} # Dictionary[Node, AudioStreamPlaybackPolyphonic]
 var audio_stream_players := {} # Dictionary[Node, AudioStreamPlayer3D]
 var building_fall_direction := {} # Dictionary[Node, Vector2]
 var is_alive := {} # Dictionary[Node, bool]
-var energy := 150
+var energy := 200
 var science := 0
 var camera_offset := Vector3.ZERO
 var enemy_spawn_position := Vector3.ZERO
@@ -229,11 +234,24 @@ func _ready() -> void:
 			tutorial_step == TutorialStep.ENERGY
 			or tutorial_step == TutorialStep.SCIENCE
 		):
-			await get_tree().create_timer(3.0).timeout
+			await get_tree().create_timer(1.0).timeout
 			go_to_next_tutorial_step()
 	)
 	go_to_next_tutorial_step()
 
+	tip_popup_button.pressed.connect(func() -> void:
+		tip_popup.visible = false
+	)
+	get_tree().create_timer(180.0).timeout.connect(func() -> void:
+		tip_popup.visible = true
+		tip_popup_label.text = (
+			"Build a turret at the edge of your base to see further"
+		)
+	)
+	get_tree().create_timer(240.0).timeout.connect(func() -> void:
+		tip_popup.visible = true
+		tip_popup_label.text = "Need more energy per second? Try selling a turret"
+	)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -399,7 +417,7 @@ func start_enemy_spawn_loop() -> void:
 			enemies_alive += 1
 		wave_index += 1
 
-		await get_tree().create_timer(60.0).timeout
+		await get_tree().create_timer(DURATION_BETWEEN_WAVES).timeout
 
 
 func start_energy_loop() -> void:
@@ -550,17 +568,19 @@ func get_invalid_building_placement_reason() -> String:
 			has_nearby_building = true
 			break
 	if building_type == BuildingType.MINE and not grid_coord in grid_to_uranium:
-		return "can only place mine on uranium"
+		return "Can only place mine on uranium"
 	if building_type != BuildingType.MINE and grid_coord in grid_to_uranium:
-		return "can't place this building on uranium"
+		return "Can't place this building on uranium"
 	if energy < building_cost:
-		return "not enough energy to afford this"
+		return (
+			"Not enough energy to afford this\nNeed %s energy" % building_cost
+		)
 	if not has_nearby_building:
-		return "can only place building near another building"
+		return "Can only place building near another building"
 	if grid_coord in grid_to_building:
-		return "can't place building on top of another building"
+		return "Can't place building on top of another building"
 	if no_building_type_selected:
-		return "select building"
+		return "Select building"
 	# Placement must be valid
 	return ""
 
@@ -918,7 +938,7 @@ func select_building_type(t: BuildingType) -> void:
 
 func go_to_next_tutorial_step() -> void:
 	tutorial_popup.visible = false
-	await get_tree().create_timer(2.0).timeout
+	await get_tree().create_timer(1.0).timeout
 	tutorial_step = mini(tutorial_step + 1, TutorialStep.END) as TutorialStep
 	if tutorial_step == TutorialStep.END:
 		return
