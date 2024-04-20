@@ -1,5 +1,3 @@
-Make ground pretty. Maybe add decals, rocks, shrubs, rubble, etc.
-
 [Breakdown] Make UI pretty.
 
 Make colors consistent.
@@ -87,3 +85,9 @@ https://freesound.org/people/CHAKONG/sounds/722633/
 https://freesound.org/people/Antenalosmusic/sounds/731716/
 
 [Unsorted] Slow time when player loses game.
+
+[Unsorted] Add scorch mark under destroyed enemies.
+
+[Unsorted] Make ground pretty. Maybe add decals, rocks, shrubs, rubble, etc.
+
+[Unsorted] Day/night cycle.

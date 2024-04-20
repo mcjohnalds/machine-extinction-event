@@ -1,5 +1,6 @@
-[gd_scene load_steps=52 format=3 uid="uid://ckyl4m8dlhu0c"]
+[gd_scene load_steps=50 format=3 uid="uid://ckyl4m8dlhu0c"]
 
+[ext_resource type="Environment" uid="uid://cqmoy0r82ot7m" path="res://environment.tres" id="1_4vsto"]
 [ext_resource type="PackedScene" uid="uid://2dcbik0xbmcs" path="res://uranium.tscn" id="2_eiaot"]
 [ext_resource type="Texture2D" uid="uid://b1b76jq4rrpmv" path="res://concrete.png" id="2_m2toe"]
 [ext_resource type="PackedScene" uid="uid://5270ncwd4vaa" path="res://enemy.tscn" id="3_d2gt7"]
@@ -15,22 +16,6 @@
 [ext_resource type="PackedScene" uid="uid://b4cygp3ibycma" path="res://building_destroyed_smoke.tscn" id="13_m04vv"]
 [ext_resource type="PackedScene" uid="uid://bwed1npno0t04" path="res://enemy_explosion.tscn" id="14_wf4tr"]
 [ext_resource type="PackedScene" uid="uid://cttvjcxmfeosi" path="res://tracer.tscn" id="15_piq65"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hfirg"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-
-[sub_resource type="Sky" id="Sky_2wcm7"]
-sky_material = SubResource("ProceduralSkyMaterial_hfirg")
-
-[sub_resource type="Environment" id="Environment_kvejx"]
-background_mode = 2
-sky = SubResource("Sky_2wcm7")
-tonemap_mode = 2
-tonemap_white = 0.68
-fog_enabled = true
-fog_density = 0.001
-fog_height_density = -0.1448
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_r4355"]
 
@@ -253,10 +238,10 @@ albedo_color = Color(0.172549, 0.172549, 0.172549, 1)
 shading_mode = 0
 albedo_color = Color(0.4, 0.4, 0.4, 1)
 
-[node name="ShaderPrecompilation" type="Node3D"]
+[node name="Node3D" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_kvejx")
+environment = ExtResource("1_4vsto")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
@@ -360,3 +345,8 @@ material = SubResource("StandardMaterial3D_who07")
 [node name="EnemyExplosion" parent="." instance=ExtResource("14_wf4tr")]
 
 [node name="Tracer" parent="." instance=ExtResource("15_piq65")]
+
+[node name="Hider" type="ColorRect" parent="."]
+offset_right = 2409.0
+offset_bottom = 1602.0
+color = Color(0.301961, 0.301961, 0.301961, 1)

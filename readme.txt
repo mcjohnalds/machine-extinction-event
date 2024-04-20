@@ -49,3 +49,7 @@ The Dramatic Music by xtrgamr via freesound.org.
 Remix of Vann Westfold Secundo Tempore by Timbre via freesound.org.
 
 Kenny's Particle Pack (CC0) by Kenny.
+
+Crete Round (OFL) by TypeTogether via Google Fonts.
+
+Manrope (OFL) by Mikhail Sharanda via Google Fonts.

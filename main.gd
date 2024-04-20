@@ -6,6 +6,7 @@ var game_scene := preload("res://game.tscn")
 var start_scene := preload("res://start.tscn")
 var won_scene := preload("res://won.tscn")
 var lost_scene := preload("res://lost.tscn")
+var preview_scene := preload("res://preview.tscn")
 var shader_precompilation_scene := preload("res://shader_precompilation.tscn")
 var button_press_sound := (
 	preload("res://menu_select.ogg") as AudioStream
@@ -27,6 +28,7 @@ var fight_music_asp := AudioStreamPlayer.new()
 var win_music_asp := AudioStreamPlayer.new()
 var lose_music_asp := AudioStreamPlayer.new()
 var game: Game
+var preview_spinner: Node3D
 
 
 func _ready() -> void:
@@ -37,6 +39,13 @@ func _ready() -> void:
 	):
 		particle.emitting = true
 	add_child(precomp)
+	await free_children()
+
+	await get_tree().create_timer(0.1).timeout
+
+	var preview := preview_scene.instantiate()
+	preview_spinner = preview.get_node("Spinner")
+	add_child(preview)
 
 	var start := start_scene.instantiate()
 	var button := start.get_node("Button") as Button
@@ -64,6 +73,9 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if preview_spinner:
+		preview_spinner.rotation.y = 0.1 + sin(Util.time() * 0.17) * 0.002 * TAU
+		preview_spinner.position.y = 0.01 + sin(Util.time() * 0.15) * 0.01
 	if game and game.enemies_alive > 0 and not game.is_game_over:
 		fade_out_asp(game_music_asp, delta)
 		fade_in_from_start_asp(fight_music_asp, delta)
@@ -110,6 +122,7 @@ func on_lost() -> void:
 
 
 func free_children() -> void:
+	preview_spinner = null
 	for c in get_children():
 		if not c is AudioStreamPlayer:
 			c.queue_free()

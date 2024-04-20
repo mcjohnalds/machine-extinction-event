@@ -1,6 +1,7 @@
 [gd_scene load_steps=22 format=3 uid="uid://ca5w6pligjaeb"]
 
 [ext_resource type="Script" path="res://game.gd" id="1_a4s7c"]
+[ext_resource type="Environment" uid="uid://cqmoy0r82ot7m" path="res://environment.tres" id="2_e0ao0"]
 [ext_resource type="PackedScene" uid="uid://cdl15ju1voxhk" path="res://turret.tscn" id="2_i6sex"]
 [ext_resource type="Texture2D" uid="uid://b1b76jq4rrpmv" path="res://concrete.png" id="3_5vqge"]
 [ext_resource type="Shader" path="res://ground.gdshader" id="3_pyqi4"]
@@ -10,22 +11,6 @@
 [ext_resource type="PackedScene" uid="uid://b4f4fhfvuuexk" path="res://lab.tscn" id="6_o3p7i"]
 [ext_resource type="PackedScene" uid="uid://gon32otradow" path="res://launchpad.tscn" id="7_0d0ja"]
 [ext_resource type="PackedScene" uid="uid://dg70iflasqw5v" path="res://space_shuttle.tscn" id="9_2qjoc"]
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_hfirg"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-
-[sub_resource type="Sky" id="Sky_2wcm7"]
-sky_material = SubResource("ProceduralSkyMaterial_hfirg")
-
-[sub_resource type="Environment" id="Environment_kvejx"]
-background_mode = 2
-sky = SubResource("Sky_2wcm7")
-tonemap_mode = 2
-tonemap_white = 0.68
-fog_enabled = true
-fog_density = 0.001
-fog_height_density = -0.1448
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_r4355"]
 
@@ -61,14 +46,23 @@ albedo_color = Color(0.172549, 0.172549, 0.172549, 1)
 shading_mode = 0
 albedo_color = Color(0.4, 0.4, 0.4, 1)
 
+[sub_resource type="Gradient" id="Gradient_nnuoc"]
+offsets = PackedFloat32Array(0, 0.692641, 1)
+colors = PackedColorArray(0, 0, 0, 0, 0, 0, 0, 0.0627451, 0, 0, 0, 0.305882)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_y4no7"]
+gradient = SubResource("Gradient_nnuoc")
+width = 1024
+height = 1024
+use_hdr = true
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+
 [node name="Game" type="Node3D"]
 script = ExtResource("1_a4s7c")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_kvejx")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.866025, -0.433013, 0.25, 0, 0.5, 0.866025, -0.5, 0.75, -0.433013, 0, 0, 0)
+environment = ExtResource("2_e0ao0")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.707107, 0.612372, -0.353553, 1.74393e-16, 0.5, 0.866025, 0.707107, -0.612372, 0.353553, -2.322, 5.583, 2.584)
@@ -132,7 +126,7 @@ transform = Transform3D(-1.52271e-08, 0, 0.348355, 0, 0.348355, 0, -0.348355, 0,
 [node name="Rocket" type="Node3D" parent="."]
 
 [node name="space_shuttle" parent="Rocket" instance=ExtResource("9_2qjoc")]
-transform = Transform3D(0.256716, 0, 0, 0, 0.370406, 0, 0, 0, 0.256716, -0.0793734, 0.320151, 2.08165e-12)
+transform = Transform3D(0.241234, 0, 0.087802, 0, 0.370406, 0, -0.087802, 0, 0.241234, -0.0793734, 0.320151, 2.08165e-12)
 
 [node name="FogOfWar" type="CSGBox3D" parent="."]
 size = Vector3(2000, 2, 2000)
@@ -144,6 +138,12 @@ radius = 7.0
 height = 3.0
 smooth_faces = false
 material = SubResource("StandardMaterial3D_who07")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_right = 1200.0
+offset_bottom = 800.0
+mouse_filter = 2
+texture = SubResource("GradientTexture2D_y4no7")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

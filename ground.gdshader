@@ -11,5 +11,5 @@ void fragment() {
 	float r2 = pow(texture(texture, v2).r, 4.0);
 	float r = r1 * 0.2 - r2 * 0.01;
 	ALBEDO = vec3(r);
-	ALPHA = (r1 + r2) / 1.5;
+	ALPHA = (r1 + r2) / 2.0;
 }
