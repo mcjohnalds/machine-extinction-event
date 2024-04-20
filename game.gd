@@ -4,18 +4,14 @@ signal won
 signal lost
 const MAX_URANIUM_SPAWN_DISTANCE := 100
 const INVALID_GRID_COORD := Vector2i(1000000, 1000000)
-#const DURATION_BEFORE_FIRST_WAVE := 30.0
-const DURATION_BEFORE_FIRST_WAVE := 0.0
+const DURATION_BEFORE_FIRST_WAVE := 30.0
 const CONSTANT_ENERGY_GAIN := 2
 const SCINECE_GAIN_PER_LAB := 1
 const ENERGY_GAIN_PER_MINE := 2
-#const SCIENCE_REQUIRED_TO_LAUNCH := 5000
-const SCIENCE_REQUIRED_TO_LAUNCH := 2
-#const BUILDING_COMPLETION_DURATION := 20.0
-const BUILDING_COMPLETION_DURATION := 2.0
+const SCIENCE_REQUIRED_TO_LAUNCH := 5000
+const BUILDING_COMPLETION_DURATION := 20.0
 const ENEMY_SPAWN_DISTANCE_FROM_PLAYER := 30.0
-#const ENEMY_SPEED = 1.0
-const ENEMY_SPEED = 5.0
+const ENEMY_SPEED = 1.0
 const TURRET_DRAIN_PER_SECOND = 1
 const CAMERA_SPEED := 6.0
 const TURRET_SHOOT_COOLDOWN := 2.0
@@ -468,19 +464,45 @@ func set_science(new_science: int) -> void:
 func process_tooltip() -> void:
 	if is_game_over:
 		return
-	if no_building_type_selected:
+	if turret_button.is_hovered():
+		tooltip_label.text = get_label_text_for_building(BuildingType.TURRET)
+	elif wall_button.is_hovered():
+		tooltip_label.text = get_label_text_for_building(BuildingType.WALL)
+	elif mine_button.is_hovered():
+		tooltip_label.text = get_label_text_for_building(BuildingType.MINE)
+	elif lab_button.is_hovered():
+		tooltip_label.text = get_label_text_for_building(BuildingType.LAB)
+	elif no_building_type_selected:
 		tooltip_label.text = ""
 	elif can_place_building():
-		var building_cost: int = BUILDING_ENERGY_COST[building_type]
-		tooltip_label.text = "Build for -%s energy" % building_cost
-		if building_type == BuildingType.TURRET:
-			tooltip_label.text += (
-				"\nDrains -%s energy per second" % TURRET_DRAIN_PER_SECOND
-			)
+		tooltip_label.text = get_label_text_for_building(building_type)
 	elif can_sell_building():
 		tooltip_label.text = "Sell for +%s energy" % get_sell_value()
 	else:
 		tooltip_label.text = "%s" % get_invalid_building_placement_reason()
+
+
+func get_label_text_for_building(t: BuildingType) -> String:
+	var cost: String = "Build for -%s energy" % BUILDING_ENERGY_COST[t]
+	var turret_energy := (
+		"Drains -%s energy per second" % TURRET_DRAIN_PER_SECOND
+	)
+	var mine_energy := (
+		"Gains %s energy per second" % ENERGY_GAIN_PER_MINE
+	)
+	var lab_science := (
+		"Gains %s science per second" % SCINECE_GAIN_PER_LAB
+	)
+	match t:
+		BuildingType.TURRET:
+			return "Shoots enemies\n%s\n%s" % [cost, turret_energy]
+		BuildingType.WALL:
+			return cost
+		BuildingType.MINE:
+			return "%s\n%s" % [cost, mine_energy]
+		BuildingType.LAB:
+			return "%s\n%s" % [cost, lab_science]
+	return ""
 
 
 func process_ghost() -> void:
