@@ -1,3 +1,3 @@
 ![](screenshot.png)
 
-[Play itch.io](https://milkmanjohn.itch.io/machine-extinction-event)
+[Play on itch.io](https://milkmanjohn.itch.io/machine-extinction-event)
